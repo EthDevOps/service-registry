@@ -1,0 +1,144 @@
+@model QuokkaServiceRegistry.Models.SoftwareLicense
+
+@{
+    ViewData["Title"] = "License Details";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-balance-scale"></i> @Html.DisplayFor(model => model.Name)
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Name)</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
+
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Abbreviation)</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-info">@Html.DisplayFor(model => model.Abbreviation)</span>
+                                </dd>
+
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Type)</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge @(Model.Type == LicenseType.OpenSource ? "bg-success" : "bg-secondary")">
+                                        @Html.DisplayFor(model => model.Type)
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.CompatibilityLevel)</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge @(Model.CompatibilityLevel == CompatibilityLevel.High ? "bg-success" : 
+                                                          Model.CompatibilityLevel == CompatibilityLevel.Medium ? "bg-warning" : 
+                                                          Model.CompatibilityLevel == CompatibilityLevel.Low ? "bg-danger" : "bg-dark")">
+                                        @Html.DisplayFor(model => model.CompatibilityLevel)
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.IsCopyleft)</dt>
+                                <dd class="col-sm-6">
+                                    @if (Model.IsCopyleft)
+                                    {
+                                        <span class="badge bg-warning">Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">No</span>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.IsOsiApproved)</dt>
+                                <dd class="col-sm-6">
+                                    @if (Model.IsOsiApproved)
+                                    {
+                                        <span class="badge bg-success">Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">No</span>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.RequiresAttribution)</dt>
+                                <dd class="col-sm-6">
+                                    @if (Model.RequiresAttribution)
+                                    {
+                                        <span class="badge bg-info">Required</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Not Required</span>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.RequiresSourceDisclosure)</dt>
+                                <dd class="col-sm-6">
+                                    @if (Model.RequiresSourceDisclosure)
+                                    {
+                                        <span class="badge bg-warning">Required</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Not Required</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="mt-3">
+                            <h6>Description</h6>
+                            <p class="text-muted">@Html.DisplayFor(model => model.Description)</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.LicenseUrl))
+                    {
+                        <div class="mt-3">
+                            <h6>License URL</h6>
+                            <a href="@Model.LicenseUrl" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-external-link-alt"></i> View License Text
+                            </a>
+                        </div>
+                    }
+
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            Created: @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <text><br />Updated: @Model.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm")</text>
+                            }
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

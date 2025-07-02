@@ -1,0 +1,244 @@
+@model QuokkaServiceRegistry.Models.VendorBillingViewModel
+
+@{
+    ViewData["Title"] = "Edit Vendor";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>@ViewData["Title"]</h1>
+                <div>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Basic Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-info-circle"></i> Basic Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="Name" class="form-label"></label>
+                                            <input asp-for="Name" class="form-control" placeholder="Enter vendor name" />
+                                            <span asp-validation-for="Name" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="WebsiteUrl" class="form-label"></label>
+                                            <input asp-for="WebsiteUrl" class="form-control" placeholder="https://example.com" />
+                                            <span asp-validation-for="WebsiteUrl" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-map-marker-alt"></i> Address Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="Country" class="form-label"></label>
+                                            <input asp-for="Country" class="form-control" placeholder="Enter country" />
+                                            <span asp-validation-for="Country" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="City" class="form-label"></label>
+                                            <input asp-for="City" class="form-control" placeholder="Enter city" />
+                                            <span asp-validation-for="City" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @await Html.PartialAsync("_BillingInformationForm", Model)
+                    </div>
+
+                    <div class="col-lg-4">
+                        <!-- Current Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-info"></i> Current Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <strong>Vendor ID:</strong> @Model.Id
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Current Name:</strong><br>
+                                    <span class="badge bg-primary">@Model.Name</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(Model.WebsiteUrl))
+                                {
+                                    <div class="mb-3">
+                                        <strong>Current Website:</strong><br>
+                                        <a href="@Model.WebsiteUrl" target="_blank" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-external-link-alt"></i> Visit Website
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- GDPR Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-shield-alt"></i> GDPR Compliance
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-3">
+                                    <input asp-for="GdprProcessingAgreementExists" class="form-check-input" />
+                                    <label asp-for="GdprProcessingAgreementExists" class="form-check-label">
+                                        GDPR Processing Agreement Exists
+                                    </label>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="ProcessingAgreementLink" class="form-label"></label>
+                                    <input asp-for="ProcessingAgreementLink" class="form-control" placeholder="https://example.com/gdpr-agreement" />
+                                    <span asp-validation-for="ProcessingAgreementLink" class="text-danger"></span>
+                                    <div class="form-text">Link to the GDPR processing agreement document</div>
+                                </div>
+
+                                @if (Model.GdprProcessingAgreementExists && !string.IsNullOrEmpty(Model.ProcessingAgreementLink))
+                                {
+                                    <div class="mt-2">
+                                        <a href="@Model.ProcessingAgreementLink" target="_blank" class="btn btn-outline-success btn-sm">
+                                            <i class="fas fa-file-contract"></i> View Current Agreement
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Services Using This Vendor -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-server"></i> Service Usage
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <strong>Services using this vendor:</strong><br>
+                                    <span class="badge bg-info">
+                                        @{
+                                            // This would be populated by the controller
+                                            var serviceCount = 0; // Placeholder
+                                        }
+                                        @serviceCount services
+                                    </span>
+                                </div>
+                                
+                                @if (serviceCount > 0)
+                                {
+                                    <div class="alert alert-warning">
+                                        <small>
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            This vendor is currently used by active services. 
+                                            Changes may affect service operations.
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Audit Information -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-history"></i> Audit Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <small class="text-muted">
+                                    Last modified: Just now<br>
+                                    Created: @DateTime.Now.ToString("yyyy-MM-dd")
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a asp-action="Index" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Add any edit-specific JavaScript here
+            
+            // Enable/disable GDPR link based on checkbox
+            $('#GdprProcessingAgreementExists').change(function() {
+                var linkInput = $('#ProcessingAgreementLink');
+                if ($(this).is(':checked')) {
+                    linkInput.prop('disabled', false);
+                    linkInput.closest('.form-group').show();
+                } else {
+                    linkInput.prop('disabled', true);
+                    linkInput.val('');
+                }
+            });
+
+            // Trigger the change event on page load
+            $('#GdprProcessingAgreementExists').trigger('change');
+        });
+    </script>
+}

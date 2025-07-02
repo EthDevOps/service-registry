@@ -1,0 +1,419 @@
+@model QuokkaServiceRegistry.Models.CatalogVendor
+
+@{
+    ViewData["Title"] = "Vendor Details";
+    var services = ViewData["Services"] as List<CatalogService> ?? new List<CatalogService>();
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>@ViewData["Title"] - @Model.Name</h1>
+                <div>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Main Information -->
+                <div class="col-lg-8">
+                    <!-- Basic Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-info-circle"></i> Basic Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Vendor Name:</dt>
+                                        <dd class="col-sm-8"><strong>@Model.Name</strong></dd>
+                                        
+                                        <dt class="col-sm-4">Vendor ID:</dt>
+                                        <dd class="col-sm-8"><code>@Model.Id</code></dd>
+                                        
+                                        <dt class="col-sm-4">Website:</dt>
+                                        <dd class="col-sm-8">
+                                            @if (!string.IsNullOrEmpty(Model.WebsiteUrl))
+                                            {
+                                                <a href="@Model.WebsiteUrl" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-external-link-alt"></i> Visit Website
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">No website provided</span>
+                                            }
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Information -->
+                    @if (!string.IsNullOrEmpty(Model.Country) || !string.IsNullOrEmpty(Model.City))
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-map-marker-alt"></i> Address Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row">
+                                    <dt class="col-sm-3">Location:</dt>
+                                    <dd class="col-sm-9">
+                                        <i class="fas fa-map-marker-alt text-primary"></i>
+                                        @Model.City, @Model.Country
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Billing Information -->
+                    @if (Model.BillingInformation != null)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-credit-card"></i> Billing Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row">
+                                    <dt class="col-sm-3">Billing Type:</dt>
+                                    <dd class="col-sm-9">
+                                        <span class="badge bg-info">@Model.BillingInformation.Type</span>
+                                    </dd>
+                                    
+                                    <dt class="col-sm-3">Status:</dt>
+                                    <dd class="col-sm-9">
+                                        @if (Model.BillingInformation.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                    </dd>
+                                    
+                                    @if (Model.BillingInformation.CostCenter != null)
+                                    {
+                                        <dt class="col-sm-3">Cost Center:</dt>
+                                        <dd class="col-sm-9">
+                                            @if (!string.IsNullOrEmpty(Model.BillingInformation.CostCenter.Name))
+                                            {
+                                                <span class="badge bg-secondary">@Model.BillingInformation.CostCenter.Name</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Default Cost Center</span>
+                                            }
+                                        </dd>
+                                    }
+                                    
+                                    @if (Model.BillingInformation.LastPaymentDate.HasValue)
+                                    {
+                                        <dt class="col-sm-3">Last Payment:</dt>
+                                        <dd class="col-sm-9">@Model.BillingInformation.LastPaymentDate.Value.ToString("yyyy-MM-dd")</dd>
+                                    }
+                                    
+                                    @if (Model.BillingInformation.NextBillingDate.HasValue)
+                                    {
+                                        <dt class="col-sm-3">Next Billing:</dt>
+                                        <dd class="col-sm-9">@Model.BillingInformation.NextBillingDate.Value.ToString("yyyy-MM-dd")</dd>
+                                    }
+                                </dl>
+
+                                @if (Model.BillingInformation.Type == BillingType.CreditCard)
+                                {
+                                    <h6 class="mt-3">Credit Card Information</h6>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        Credit card details are securely stored and masked for security purposes.
+                                        @if (!string.IsNullOrEmpty(Model.BillingInformation.CardHolderName))
+                                        {
+                                            <br><strong>Card Holder:</strong> @Model.BillingInformation.CardHolderName
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.BillingInformation.CardNumber))
+                                        {
+                                            <br /><strong>Card Number:</strong> @("****-****-****-" + (Model.BillingInformation.CardNumber.Length >= 4 ? Model.BillingInformation.CardNumber.Substring(Model.BillingInformation.CardNumber.Length - 4) : Model.BillingInformation.CardNumber))
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.BillingInformation.ExpiryDate))
+                                        {
+                                            <br /><strong>Expiry Date:</strong> @Model.BillingInformation.ExpiryDate
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- GDPR Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-shield-alt"></i> GDPR Compliance
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-3">Processing Agreement:</dt>
+                                <dd class="col-sm-9">
+                                    @if (Model.GdprProcessingAgreementExists)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check"></i> Agreement Exists
+                                        </span>
+                                        @if (!string.IsNullOrEmpty(Model.ProcessingAgreementLink))
+                                        {
+                                            <a href="@Model.ProcessingAgreementLink" target="_blank" class="btn btn-outline-info btn-sm ms-2">
+                                                <i class="fas fa-file-contract"></i> View Agreement
+                                            </a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-exclamation-triangle"></i> No Agreement
+                                        </span>
+                                    }
+                                </dd>
+                                
+                                @if (!string.IsNullOrEmpty(Model.ProcessingAgreementLink))
+                                {
+                                    <dt class="col-sm-3">Agreement Link:</dt>
+                                    <dd class="col-sm-9">
+                                        <a href="@Model.ProcessingAgreementLink" target="_blank">
+                                            @Model.ProcessingAgreementLink
+                                        </a>
+                                    </dd>
+                                }
+                            </dl>
+                            
+                            @if (!Model.GdprProcessingAgreementExists)
+                            {
+                                <div class="alert alert-warning">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-exclamation-triangle"></i> GDPR Compliance Warning
+                                    </h6>
+                                    <p class="mb-0">
+                                        This vendor does not have a GDPR processing agreement on file. 
+                                        This may be required for EU data processing compliance.
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Services Using This Vendor -->
+                    @if (services.Any())
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-server"></i> Services Using This Vendor
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Service Name</th>
+                                                <th>Type</th>
+                                                <th>Current Stage</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var service in services)
+                                            {
+                                                <tr>
+                                                    <td><strong>@service.Name</strong></td>
+                                                    <td>
+                                                        @if (service.IsPropriety)
+                                                        {
+                                                            <span class="badge bg-warning">Proprietary</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-success">Open Source</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-primary">@service.Lifecycle?.CurrentStage</span>
+                                                    </td>
+                                                    <td>
+                                                        <a asp-controller="CatalogService" asp-action="Details" asp-route-id="@service.Id" class="btn btn-outline-info btn-sm">
+                                                            <i class="fas fa-eye"></i> View
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-server"></i> Services Using This Vendor
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center py-3">
+                                    <i class="fas fa-server fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted">No services are currently using this vendor.</p>
+                                    <a asp-controller="CatalogService" asp-action="Create" class="btn btn-outline-primary">
+                                        <i class="fas fa-plus"></i> Create Service for This Vendor
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Quick Stats -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-pie"></i> Quick Stats
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <small class="text-muted">Total Services</small><br>
+                                <span class="h4">@services.Count</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">GDPR Compliance</small><br>
+                                @if (Model.GdprProcessingAgreementExists)
+                                {
+                                    <span class="badge bg-success">Compliant</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Needs Review</span>
+                                }
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">Billing Status</small><br>
+                                @if (Model.BillingInformation?.IsActive == true)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </div>
+                            
+                            @if (services.Any())
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted">Service Types</small><br>
+                                    <span class="badge bg-warning">@services.Count(s => s.IsPropriety) Proprietary</span>
+                                    <span class="badge bg-success">@services.Count(s => !s.IsPropriety) Open Source</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-address-book"></i> Contact Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(Model.WebsiteUrl))
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted">Website</small><br>
+                                    <a href="@Model.WebsiteUrl" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-external-link-alt"></i> Visit Website
+                                    </a>
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(Model.Country) || !string.IsNullOrEmpty(Model.City))
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted">Location</small><br>
+                                    <i class="fas fa-map-marker-alt text-primary"></i>
+                                    @Model.City, @Model.Country
+                                </div>
+                            }
+                            
+                            @if (Model.GdprProcessingAgreementExists && !string.IsNullOrEmpty(Model.ProcessingAgreementLink))
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted">GDPR Agreement</small><br>
+                                    <a href="@Model.ProcessingAgreementLink" target="_blank" class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-file-contract"></i> View Agreement
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-cogs"></i> Actions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Edit Vendor
+                                </a>
+                                <a asp-controller="CatalogService" asp-action="Create" class="btn btn-outline-success">
+                                    <i class="fas fa-plus"></i> Add Service
+                                </a>
+                                <hr>
+                                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Delete Vendor
+                                </a>
+                                <button type="button" class="btn btn-outline-info" onclick="exportVendor()">
+                                    <i class="fas fa-download"></i> Export Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function exportVendor() {
+            // TODO: Implement vendor data export functionality
+            alert('Vendor export functionality will be implemented in a future update.');
+        }
+    </script>
+}

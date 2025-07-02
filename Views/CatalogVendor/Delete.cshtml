@@ -1,0 +1,226 @@
+@model QuokkaServiceRegistry.Models.CatalogVendor
+
+@{
+    ViewData["Title"] = "Delete Vendor";
+    var servicesCount = (int)(ViewData["ServicesCount"] ?? 0);
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-danger">@ViewData["Title"]</h1>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-exclamation-triangle"></i> Confirm Vendor Deletion
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (servicesCount > 0)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    <h5 class="alert-heading">
+                                        <i class="fas fa-ban"></i> Cannot Delete Vendor
+                                    </h5>
+                                    <p>This vendor cannot be deleted because it is currently used by <strong>@servicesCount service(s)</strong>.</p>
+                                    <hr>
+                                    <p class="mb-0">
+                                        You must first remove or reassign all services using this vendor before deletion.
+                                    </p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning" role="alert">
+                                    <h5 class="alert-heading">
+                                        <i class="fas fa-exclamation-triangle"></i> Warning!
+                                    </h5>
+                                    <p>You are about to permanently delete the vendor <strong>"@Model.Name"</strong>.</p>
+                                    <hr>
+                                    <p class="mb-0">This action cannot be undone. All vendor data will be permanently removed.</p>
+                                </div>
+                            }
+
+                            <h6>Vendor Details:</h6>
+                            <dl class="row">
+                                <dt class="col-sm-3">Vendor Name:</dt>
+                                <dd class="col-sm-9"><strong>@Model.Name</strong></dd>
+                                
+                                <dt class="col-sm-3">Vendor ID:</dt>
+                                <dd class="col-sm-9"><code>@Model.Id</code></dd>
+                                
+                                <dt class="col-sm-3">Website:</dt>
+                                <dd class="col-sm-9">
+                                    @if (!string.IsNullOrEmpty(Model.WebsiteUrl))
+                                    {
+                                        <a href="@Model.WebsiteUrl" target="_blank">@Model.WebsiteUrl</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No website</span>
+                                    }
+                                </dd>
+                                
+                                @if (!string.IsNullOrEmpty(Model.Country) || !string.IsNullOrEmpty(Model.City))
+                                {
+                                    <dt class="col-sm-3">Location:</dt>
+                                    <dd class="col-sm-9">@Model.City, @Model.Country</dd>
+                                }
+                                
+                                @if (Model.BillingInformation != null)
+                                {
+                                    <dt class="col-sm-3">Billing Type:</dt>
+                                    <dd class="col-sm-9">
+                                        <span class="badge bg-info">@Model.BillingInformation.Type</span>
+                                        @if (Model.BillingInformation.IsActive)
+                                        {
+                                            <span class="badge bg-success ms-1">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary ms-1">Inactive</span>
+                                        }
+                                    </dd>
+                                }
+                                
+                                <dt class="col-sm-3">GDPR Agreement:</dt>
+                                <dd class="col-sm-9">
+                                    @if (Model.GdprProcessingAgreementExists)
+                                    {
+                                        <span class="badge bg-success">Agreement Exists</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">No Agreement</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Services Count:</dt>
+                                <dd class="col-sm-9">
+                                    <span class="badge @(servicesCount > 0 ? "bg-warning" : "bg-success")">
+                                        @servicesCount services
+                                    </span>
+                                </dd>
+                            </dl>
+
+                            @if (Model.GdprProcessingAgreementExists && !string.IsNullOrEmpty(Model.ProcessingAgreementLink))
+                            {
+                                <div class="alert alert-info" role="alert">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-shield-alt"></i> GDPR Processing Agreement
+                                    </h6>
+                                    <p class="mb-0">
+                                        This vendor has a GDPR processing agreement on file that will also be removed.
+                                        <a href="@Model.ProcessingAgreementLink" target="_blank" class="btn btn-outline-info btn-sm ms-2">
+                                            <i class="fas fa-external-link-alt"></i> View Agreement
+                                        </a>
+                                    </p>
+                                </div>
+                            }
+
+                            @if (Model.BillingInformation != null && Model.BillingInformation.IsActive)
+                            {
+                                <div class="alert alert-warning" role="alert">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-credit-card"></i> Active Billing Information
+                                    </h6>
+                                    <p class="mb-0">
+                                        This vendor has active billing information that will also be removed.
+                                        Ensure all financial obligations are settled before proceeding.
+                                    </p>
+                                </div>
+                            }
+
+                            @if (TempData["Error"] != null)
+                            {
+                                <div class="alert alert-danger mt-3" role="alert">
+                                    <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            @if (servicesCount > 0)
+                            {
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                        <a asp-action="Index" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </a>
+                                    </div>
+                                    
+                                    <div>
+                                        <a asp-controller="CatalogService" asp-action="Index" class="btn btn-warning">
+                                            <i class="fas fa-server"></i> Manage Services First
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <form asp-action="Delete" method="post">
+                                    <input type="hidden" asp-for="Id" />
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                            <a asp-action="Index" class="btn btn-secondary">
+                                                <i class="fas fa-times"></i> Cancel
+                                            </a>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-danger" 
+                                                onclick="return confirm('Are you absolutely sure you want to delete vendor \'@Model.Name\'? This action cannot be undone.')">
+                                            <i class="fas fa-trash"></i> Yes, Delete Vendor
+                                        </button>
+                                    </div>
+                                </form>
+                            }
+                        </div>
+                    </div>
+
+                    @if (servicesCount > 0)
+                    {
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-lightbulb"></i> Next Steps
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-3">To delete this vendor, you need to:</p>
+                                <ol>
+                                    <li>Go to the <a asp-controller="CatalogService" asp-action="Index">Service Catalog</a></li>
+                                    <li>Find all services using this vendor</li>
+                                    <li>Either delete those services or assign them to a different vendor</li>
+                                    <li>Return here to delete the vendor</li>
+                                </ol>
+                                
+                                <div class="mt-3">
+                                    <a asp-controller="CatalogService" asp-action="Index" class="btn btn-primary">
+                                        <i class="fas fa-server"></i> Go to Service Catalog
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,410 @@
+@model QuokkaServiceRegistry.Models.CatalogService
+
+@{
+    ViewData["Title"] = "Service Details";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>@ViewData["Title"] - @Model.Name</h1>
+                <div>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Main Information -->
+                <div class="col-lg-8">
+                    <!-- Basic Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-info-circle"></i> Basic Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">Service Name:</dt>
+                                        <dd class="col-sm-8"><strong>@Model.Name</strong></dd>
+                                        
+                                        <dt class="col-sm-4">Service Type:</dt>
+                                        <dd class="col-sm-8">
+                                            @if (Model.IsPropriety)
+                                            {
+                                                <span class="badge bg-warning">Proprietary</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">Open Source</span>
+                                            }
+                                        </dd>
+                                        
+                                        <dt class="col-sm-4">Service ID:</dt>
+                                        <dd class="col-sm-8"><code>@Model.Id</code></dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vendor Information -->
+                    @if (Model.Vendor != null)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-building"></i> Vendor Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <dl class="row">
+                                            <dt class="col-sm-4">Vendor Name:</dt>
+                                            <dd class="col-sm-8">@Model.Vendor.Name</dd>
+                                            
+                                            <dt class="col-sm-4">Website:</dt>
+                                            <dd class="col-sm-8">
+                                                <a href="@Model.Vendor.WebsiteUrl" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-external-link-alt"></i> Visit Website
+                                                </a>
+                                            </dd>
+                                            
+                                            @if (!string.IsNullOrEmpty(Model.Vendor.Country) || !string.IsNullOrEmpty(Model.Vendor.City))
+                                            {
+                                                <dt class="col-sm-4">Location:</dt>
+                                                <dd class="col-sm-8">@Model.Vendor.City, @Model.Vendor.Country</dd>
+                                            }
+                                            
+                                            <dt class="col-sm-4">GDPR Agreement:</dt>
+                                            <dd class="col-sm-8">
+                                                @if (Model.Vendor.GdprProcessingAgreementExists)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check"></i> Agreement Exists
+                                                    </span>
+                                                    @if (!string.IsNullOrEmpty(Model.Vendor.ProcessingAgreementLink))
+                                                    {
+                                                        <a href="@Model.Vendor.ProcessingAgreementLink" target="_blank" class="btn btn-outline-info btn-sm ms-2">
+                                                            <i class="fas fa-file-contract"></i> View Agreement
+                                                        </a>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-exclamation-triangle"></i> No Agreement
+                                                    </span>
+                                                }
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- License Information -->
+                    @if (Model.License != null)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-certificate"></i> License Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row">
+                                    <dt class="col-sm-3">License Name:</dt>
+                                    <dd class="col-sm-9">
+                                        <span class="badge bg-info me-2">@Model.License.Abbreviation</span>
+                                        @Model.License.Name
+                                    </dd>
+                                    
+                                    <dt class="col-sm-3">License URL:</dt>
+                                    <dd class="col-sm-9">
+                                        <a href="@Model.License.LicenseUrl" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-external-link-alt"></i> View License
+                                        </a>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Hosting Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-server"></i> Hosting Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-3">Hosting Type:</dt>
+                                <dd class="col-sm-9">
+                                    <span class="badge @(Model.HostingType == CatalogHostingType.SaaS ? "bg-success" : "bg-warning")">
+                                        @Model.HostingType
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-3">Hosting Country:</dt>
+                                <dd class="col-sm-9">@Model.HostingCountry</dd>
+                                
+                                @if (!string.IsNullOrEmpty(Model.SaasRegionReference))
+                                {
+                                    <dt class="col-sm-3">SaaS Region:</dt>
+                                    <dd class="col-sm-9">@Model.SaasRegionReference</dd>
+                                }
+                            </dl>
+                            
+                            @if (Model.OnpremiseHosts != null && Model.OnpremiseHosts.Any())
+                            {
+                                <h6 class="mt-3">On-Premise Hosts</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Cloud Provider</th>
+                                                <th>Region</th>
+                                                <th>Netbox Reference</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var host in Model.OnpremiseHosts)
+                                            {
+                                                <tr>
+                                                    <td>@host.CloudProvider?.Name</td>
+                                                    <td>@host.Region</td>
+                                                    <td>
+                                                        <a href="@host.NetboxReferenceUrl" target="_blank" class="btn btn-outline-info btn-sm">
+                                                            <i class="fas fa-external-link-alt"></i> View
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Subscription Information -->
+                    @if (Model.Subscription != null)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-credit-card"></i> Subscription Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row">
+                                    <dt class="col-sm-3">Subscription:</dt>
+                                    <dd class="col-sm-9">@Model.Subscription.Name</dd>
+                                    
+                                    <dt class="col-sm-3">Seats:</dt>
+                                    <dd class="col-sm-9">
+                                        <div class="progress" style="height: 20px;">
+                                            @{
+                                                var usagePercentage = Model.Subscription.SeatsAvailable > 0 
+                                                    ? (double)Model.Subscription.SeatsUsed / Model.Subscription.SeatsAvailable * 100 
+                                                    : 0;
+                                                var progressClass = usagePercentage < 70 ? "bg-success" : usagePercentage < 90 ? "bg-warning" : "bg-danger";
+                                            }
+                                            <div class="progress-bar @progressClass" role="progressbar" 
+                                                 style="width: @usagePercentage%" 
+                                                 aria-valuenow="@Model.Subscription.SeatsUsed" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="@Model.Subscription.SeatsAvailable">
+                                                @Model.Subscription.SeatsUsed / @Model.Subscription.SeatsAvailable seats
+                                            </div>
+                                        </div>
+                                    </dd>
+                                    
+                                    <dt class="col-sm-3">Cost per Seat:</dt>
+                                    <dd class="col-sm-9">$@Model.Subscription.CostPerSeatUsd USD</dd>
+                                    
+                                    <dt class="col-sm-3">Term Duration:</dt>
+                                    <dd class="col-sm-9">@Model.Subscription.TermDuration.Days days</dd>
+                                    
+                                    <dt class="col-sm-3">Total Cost:</dt>
+                                    <dd class="col-sm-9">
+                                        <strong>$@(Model.Subscription.SeatsUsed * Model.Subscription.CostPerSeatUsd) USD</strong>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Quick Stats -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-pie"></i> Quick Stats
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <small class="text-muted">Current Lifecycle Stage</small><br>
+                                <span class="badge bg-primary">@Model.Lifecycle?.CurrentStage</span>
+                            </div>
+                            
+                            @if (Model.Subscription != null)
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted">Seat Utilization</small><br>
+                                    @{
+                                        var utilization = Model.Subscription.SeatsAvailable > 0 
+                                            ? (double)Model.Subscription.SeatsUsed / Model.Subscription.SeatsAvailable * 100 
+                                            : 0;
+                                    }
+                                    <strong>@utilization.ToString("F1")%</strong>
+                                </div>
+                            }
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">Hosting Location</small><br>
+                                <span class="badge @(Model.HostingType == CatalogHostingType.SaaS ? "bg-success" : "bg-warning")">
+                                    @Model.HostingType
+                                </span>
+                                <br>
+                                <small class="text-muted mt-1">
+                                    <i class="fas fa-globe"></i> @Model.HostingCountry
+                                </small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">GDPR Compliance</small><br>
+                                @if (Model.GdprRegister != null)
+                                {
+                                    <span class="badge bg-success">Registered</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Not Required</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lifecycle Information -->
+                    @if (Model.Lifecycle != null && Model.Lifecycle.Stages != null && Model.Lifecycle.Stages.Any())
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-project-diagram"></i> Lifecycle Stages
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                @foreach (var stage in Model.Lifecycle.Stages.OrderBy(s => s.StartDate))
+                                {
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge @(stage.Status == ServiceLifecycleStageStatus.Completed ? "bg-success" : stage.Status == ServiceLifecycleStageStatus.InProgress ? "bg-primary" : "bg-secondary")">
+                                                @stage.StageType
+                                            </span>
+                                            <small class="text-muted">@stage.Status</small>
+                                        </div>
+                                        @if (stage.StartDate.HasValue)
+                                        {
+                                            <small class="text-muted">Started: @stage.StartDate.Value.ToString("yyyy-MM-dd")</small>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- GDPR Information -->
+                    @if (Model.GdprRegister != null)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-shield-alt"></i> GDPR Register
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <small class="text-muted">Data Categories</small><br>
+                                    @foreach (var category in Model.GdprRegister.DataCategories)
+                                    {
+                                        <span class="badge bg-info me-1">@category</span>
+                                    }
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">Processing Frequency</small><br>
+                                    <span class="badge bg-warning">@Model.GdprRegister.ProcessingFrequency</span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">Employee PII</small><br>
+                                    <span class="badge @(Model.GdprRegister.ProcessesEmployeePii ? "bg-warning" : "bg-success")">
+                                        @(Model.GdprRegister.ProcessesEmployeePii ? "Yes" : "No")
+                                    </span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">External User PII</small><br>
+                                    <span class="badge @(Model.GdprRegister.ProcessesExternalUserPii ? "bg-warning" : "bg-success")">
+                                        @(Model.GdprRegister.ProcessesExternalUserPii ? "Yes" : "No")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-cogs"></i> Actions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Edit Service
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Delete Service
+                                </a>
+                                <hr>
+                                <button type="button" class="btn btn-outline-info" onclick="exportService()">
+                                    <i class="fas fa-download"></i> Export Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script>
+        function exportService() {
+            // TODO: Implement service data export functionality
+            alert('Service export functionality will be implemented in a future update.');
+        }
+    </script>
+}

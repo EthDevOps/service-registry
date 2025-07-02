@@ -1,0 +1,232 @@
+@model QuokkaServiceRegistry.Models.CatalogService
+
+@{
+    ViewData["Title"] = "Create Service";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>@ViewData["Title"]</h1>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+
+            <form asp-action="Create" method="post">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Basic Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-info-circle"></i> Basic Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="Name" class="form-label"></label>
+                                            <input asp-for="Name" class="form-control" placeholder="Enter service name" />
+                                            <span asp-validation-for="Name" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <div class="form-check mt-4">
+                                                <input asp-for="IsPropriety" class="form-check-input" />
+                                                <label asp-for="IsPropriety" class="form-check-label">
+                                                    Is Proprietary Software
+                                                </label>
+                                            </div>
+                                            <span asp-validation-for="IsPropriety" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vendor Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-building"></i> Vendor Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <label asp-for="VendorId" class="form-label">Select Vendor</label>
+                                    <select asp-for="VendorId" class="form-select" asp-items="ViewBag.VendorId">
+                                        <option value="">-- Select Vendor --</option>
+                                    </select>
+                                    <span asp-validation-for="VendorId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- License Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-certificate"></i> License Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <label asp-for="LicenseId" class="form-label">Select License</label>
+                                    <select asp-for="LicenseId" class="form-select" asp-items="ViewBag.LicenseId">
+                                        <option value="">-- Select License --</option>
+                                    </select>
+                                    <span asp-validation-for="LicenseId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hosting Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-server"></i> Hosting Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="HostingType" class="form-label">Hosting Type</label>
+                                            <select asp-for="HostingType" class="form-select" asp-items="Html.GetEnumSelectList<CatalogHostingType>()">
+                                                <option value="">-- Select Type --</option>
+                                            </select>
+                                            <span asp-validation-for="HostingType" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="HostingCountry" class="form-label">Hosting Country</label>
+                                            <input asp-for="HostingCountry" class="form-control" placeholder="e.g., United States" />
+                                            <span asp-validation-for="HostingCountry" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="SaasRegionReference" class="form-label">SaaS Region (Optional)</label>
+                                            <input asp-for="SaasRegionReference" class="form-control" placeholder="e.g., us-east-1" />
+                                            <span asp-validation-for="SaasRegionReference" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lifecycle Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-project-diagram"></i> Initial Lifecycle Stage
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <label for="initialStage" class="form-label">Starting Stage</label>
+                                    <select name="initialStage" class="form-select" asp-items="Html.GetEnumSelectList<ServiceLifecycleStageType>()">
+                                        <option value="">-- Select Initial Stage --</option>
+                                    </select>
+                                    <div class="form-text">The lifecycle stage this service will start in</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4">
+                        <!-- Optional Information -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-plus-circle"></i> Optional Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Subscription -->
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Subscription (Optional)</label>
+                                    <select class="form-select" name="SubscriptionId" asp-items="ViewBag.SubscriptionId">
+                                        <option value="">-- No Subscription --</option>
+                                    </select>
+                                    <span asp-validation-for="Subscription" class="text-danger"></span>
+                                </div>
+
+                                <!-- GDPR Register -->
+                                <div class="form-group mb-3">
+                                    <label class="form-label">GDPR Register (Optional)</label>
+                                    <select class="form-select" name="GdprRegisterId" asp-items="ViewBag.GdprRegisterId">
+                                        <option value="">-- No GDPR Register --</option>
+                                    </select>
+                                    <span asp-validation-for="GdprRegister" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-bolt"></i> Quick Actions
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a href="#" class="btn btn-outline-primary btn-sm" onclick="createNewVendor()">
+                                        <i class="fas fa-plus"></i> Create New Vendor
+                                    </a>
+                                    <a href="#" class="btn btn-outline-info btn-sm" onclick="createNewLicense()">
+                                        <i class="fas fa-plus"></i> Create New License
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <a asp-action="Index" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Create Service
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script>
+        function createNewVendor() {
+            // TODO: Implement modal for creating new vendor
+            alert('Create New Vendor functionality will be implemented in a future update.');
+        }
+        
+        function createNewLicense() {
+            // TODO: Implement modal for creating new license
+            alert('Create New License functionality will be implemented in a future update.');
+        }
+        
+        
+    </script>
+}
