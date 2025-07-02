@@ -363,44 +363,97 @@
                     }
 
                     <!-- GDPR Information -->
-                    @if (Model.GdprRegister != null)
-                    {
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-shield-alt"></i> GDPR Register
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <small class="text-muted">Data Categories</small><br>
-                                    @foreach (var category in Model.GdprRegister.DataCategories)
-                                    {
-                                        <span class="badge bg-info me-1">@category</span>
-                                    }
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <small class="text-muted">Processing Frequency</small><br>
-                                    <span class="badge bg-warning">@Model.GdprRegister.ProcessingFrequency</span>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <small class="text-muted">Employee PII</small><br>
-                                    <span class="badge @(Model.GdprRegister.ProcessesEmployeePii ? "bg-warning" : "bg-success")">
-                                        @(Model.GdprRegister.ProcessesEmployeePii ? "Yes" : "No")
-                                    </span>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <small class="text-muted">External User PII</small><br>
-                                    <span class="badge @(Model.GdprRegister.ProcessesExternalUserPii ? "bg-warning" : "bg-success")">
-                                        @(Model.GdprRegister.ProcessesExternalUserPii ? "Yes" : "No")
-                                    </span>
-                                </div>
-                            </div>
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-shield-alt"></i> GDPR Compliance
+                            </h5>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#gdprModal">
+                                <i class="fas fa-shield-alt"></i> @(Model.GdprRegister != null ? "Update" : "Set") GDPR
+                            </button>
                         </div>
-                    }
+                        <div class="card-body">
+                            @if (Model.GdprRegister != null)
+                            {
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <small class="text-muted">Data Categories</small><br>
+                                            @if (Model.GdprRegister.DataCategories.Any())
+                                            {
+                                                @foreach (var category in Model.GdprRegister.DataCategories)
+                                                {
+                                                    <span class="badge bg-info me-1">@category</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not specified</span>
+                                            }
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <small class="text-muted">Processing Frequency</small><br>
+                                            <span class="badge bg-warning">@Model.GdprRegister.ProcessingFrequency</span>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <small class="text-muted">Security Measures</small><br>
+                                            @if (Model.GdprRegister.SecurityMeasures.Any())
+                                            {
+                                                @foreach (var measure in Model.GdprRegister.SecurityMeasures)
+                                                {
+                                                    <span class="badge bg-secondary me-1">@measure</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not specified</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <small class="text-muted">Employee PII</small><br>
+                                            <span class="badge @(Model.GdprRegister.ProcessesEmployeePii ? "bg-warning" : "bg-success")">
+                                                @(Model.GdprRegister.ProcessesEmployeePii ? "Yes" : "No")
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <small class="text-muted">External User PII</small><br>
+                                            <span class="badge @(Model.GdprRegister.ProcessesExternalUserPii ? "bg-warning" : "bg-success")">
+                                                @(Model.GdprRegister.ProcessesExternalUserPii ? "Yes" : "No")
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <small class="text-muted">Processing Agreement</small><br>
+                                            <span class="badge @(Model.GdprRegister.HasProcessingAgreement ? "bg-success" : "bg-danger")">
+                                                @(Model.GdprRegister.HasProcessingAgreement ? "Yes" : "No")
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @if (Model.GdprRegister.LastGdprAssessment.HasValue)
+                                {
+                                    <div class="mt-3 pt-3 border-top">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i> Last Assessment: @Model.GdprRegister.LastGdprAssessment.Value.ToString("yyyy-MM-dd")
+                                        </small>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-info-circle"></i> No GDPR compliance information recorded. 
+                                    Click "Set GDPR" to configure compliance settings.
+                                </p>
+                            }
+                        </div>
+                    </div>
 
                     <!-- Actions -->
                     <div class="card">
@@ -476,6 +529,244 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add Stage
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- GDPR Compliance Modal -->
+<div class="modal fade" id="gdprModal" tabindex="-1" aria-labelledby="gdprModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form asp-action="SetGdprCompliance" method="post">
+                <input type="hidden" name="serviceId" value="@Model.Id" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gdprModalLabel">@(Model.GdprRegister != null ? "Update" : "Set") GDPR Compliance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Section 1: Data Classification -->
+                    <div class="card border-light mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-database text-primary"></i> Data Classification & Processing
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Data Categories -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Data Categories <span class="text-danger">*</span></label>
+                                        <div class="border rounded p-3 bg-light">
+                                            @foreach (var category in Enum.GetValues<DataCategory>())
+                                            {
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="dataCategories" value="@category" id="category_@category"
+                                                           @(Model.GdprRegister?.DataCategories?.Contains(category) == true ? "checked" : "") />
+                                                    <label class="form-check-label" for="category_@category">@category</label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Processing Purposes -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Processing Purposes <span class="text-danger">*</span></label>
+                                        <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                                            @foreach (var purpose in Enum.GetValues<ProcessingPurpose>())
+                                            {
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="processingPurposes" value="@purpose" id="purpose_@purpose"
+                                                           @(Model.GdprRegister?.ProcessingPurposes?.Contains(purpose) == true ? "checked" : "") />
+                                                    <label class="form-check-label" for="purpose_@purpose">@purpose</label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <!-- Processing Frequency -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Processing Frequency <span class="text-danger">*</span></label>
+                                        <select name="processingFrequency" class="form-select" required>
+                                            <option value="">-- Select Frequency --</option>
+                                            @foreach (var frequency in Enum.GetValues<ProcessingFrequency>())
+                                            {
+                                                @if (Model.GdprRegister?.ProcessingFrequency == frequency)
+                                                {
+                                                    <option value="@frequency" selected>@frequency</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@frequency">@frequency</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <!-- PII Processing -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Personal Data Processing</label>
+                                        <div class="border rounded p-3 bg-light">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="processesEmployeePii" value="true" id="employeePii"
+                                                       @(Model.GdprRegister?.ProcessesEmployeePii == true ? "checked" : "") />
+                                                <label class="form-check-label" for="employeePii">Processes Employee PII</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="processesExternalUserPii" value="true" id="externalPii"
+                                                       @(Model.GdprRegister?.ProcessesExternalUserPii == true ? "checked" : "") />
+                                                <label class="form-check-label" for="externalPii">Processes External User PII</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="processesSensitiveData" value="true" id="sensitiveData"
+                                                       @(Model.GdprRegister?.ProcessesSensitiveData == true ? "checked" : "") />
+                                                <label class="form-check-label" for="sensitiveData">Processes Sensitive Data</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sensitive Data Types -->
+                                    <div class="mb-4">
+                                        <label for="sensitiveDataTypes" class="form-label fw-bold">Sensitive Data Types</label>
+                                        <input type="text" name="sensitiveDataTypes" class="form-control" 
+                                               value="@(Model.GdprRegister?.SensitiveDataTypes != null ? string.Join(", ", Model.GdprRegister.SensitiveDataTypes) : "")"
+                                               placeholder="e.g., health data, financial data">
+                                        <div class="form-text">Comma-separated list of sensitive data types.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Security & Compliance -->
+                    <div class="card border-light mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-shield-alt text-success"></i> Security Measures & Compliance
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Security Measures -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Security Measures</label>
+                                        <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                                            @foreach (var measure in Enum.GetValues<SecurityMeasure>())
+                                            {
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="securityMeasures" value="@measure" id="measure_@measure"
+                                                           @(Model.GdprRegister?.SecurityMeasures?.Contains(measure) == true ? "checked" : "") />
+                                                    <label class="form-check-label" for="measure_@measure">@measure</label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Processing Agreement -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Processing Agreement</label>
+                                        <div class="border rounded p-3 bg-light">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="hasProcessingAgreement" value="true" id="processingAgreement"
+                                                       @(Model.GdprRegister?.HasProcessingAgreement == true ? "checked" : "") />
+                                                <label class="form-check-label" for="processingAgreement">Has Processing Agreement</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <!-- Data Retention -->
+                                    <div class="mb-4">
+                                        <label for="dataRetentionDays" class="form-label fw-bold">Data Retention Period</label>
+                                        <div class="input-group">
+                                            <input type="number" name="dataRetentionDays" class="form-control" 
+                                                   value="@(Model.GdprRegister?.DataRetentionPeriod?.Days)"
+                                                   placeholder="365">
+                                            <span class="input-group-text">days</span>
+                                        </div>
+                                        <div class="form-text">Maximum period to retain personal data.</div>
+                                    </div>
+
+                                    <!-- Data Subject Rights -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Data Subject Rights Support</label>
+                                        <div class="border rounded p-3 bg-light">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="supportsDataPortability" value="true" id="dataPortability"
+                                                       @(Model.GdprRegister?.SupportsDataPortability == true ? "checked" : "") />
+                                                <label class="form-check-label" for="dataPortability">Data Portability</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="supportsDataDeletion" value="true" id="dataDeletion"
+                                                       @(Model.GdprRegister?.SupportsDataDeletion == true ? "checked" : "") />
+                                                <label class="form-check-label" for="dataDeletion">Data Deletion (Right to be Forgotten)</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="supportsDataCorrection" value="true" id="dataCorrection"
+                                                       @(Model.GdprRegister?.SupportsDataCorrection == true ? "checked" : "") />
+                                                <label class="form-check-label" for="dataCorrection">Data Correction</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Contact & Documentation -->
+                    <div class="card border-light mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-file-contract text-info"></i> Contact Information & Documentation
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="dataProtectionOfficerContact" class="form-label fw-bold">Data Protection Officer Contact</label>
+                                        <input type="text" name="dataProtectionOfficerContact" class="form-control" 
+                                               value="@Model.GdprRegister?.DataProtectionOfficerContact"
+                                               placeholder="e.g., dpo@company.com">
+                                        <div class="form-text">Email or contact information for DPO.</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="processingAgreementReference" class="form-label fw-bold">Processing Agreement Reference</label>
+                                        <input type="text" name="processingAgreementReference" class="form-control" 
+                                               value="@Model.GdprRegister?.ProcessingAgreementReference"
+                                               placeholder="e.g., Agreement #123">
+                                        <div class="form-text">Reference number or link to processing agreement.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="complianceNotes" class="form-label fw-bold">Compliance Notes</label>
+                                <textarea name="complianceNotes" class="form-control" rows="4" 
+                                          placeholder="Additional compliance notes, special considerations, or assessment details...">@Model.GdprRegister?.ComplianceNotes</textarea>
+                                <div class="form-text">Any additional information about GDPR compliance for this service.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> This assessment will be timestamped and can be updated as compliance requirements change.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-shield-alt"></i> Save GDPR Compliance
                     </button>
                 </div>
             </form>

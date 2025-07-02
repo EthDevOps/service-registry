@@ -323,6 +323,115 @@ public class CatalogServiceController : Controller
         return RedirectToAction(nameof(Details), new { id = serviceId });
     }
 
+    // POST: CatalogService/SetGdprCompliance/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetGdprCompliance(int serviceId, 
+        List<DataCategory> dataCategories,
+        List<ProcessingPurpose> processingPurposes,
+        ProcessingFrequency processingFrequency,
+        List<SecurityMeasure> securityMeasures,
+        bool processesEmployeePii,
+        bool processesExternalUserPii,
+        bool processesSensitiveData,
+        string? sensitiveDataTypes = null,
+        bool hasProcessingAgreement = false,
+        string? processingAgreementReference = null,
+        int? dataRetentionDays = null,
+        string? dataDeletionProcess = null,
+        bool supportsDataPortability = false,
+        bool supportsDataDeletion = false,
+        bool supportsDataCorrection = false,
+        string? dataProtectionOfficerContact = null,
+        string? complianceNotes = null,
+        string? dataTransfers = null,
+        string? purposesOfUse = null)
+    {
+        var catalogService = await _context.Services
+            .Include(s => s.GdprRegister)
+            .FirstOrDefaultAsync(s => s.Id == serviceId);
+            
+        if (catalogService == null)
+        {
+            return NotFound();
+        }
+
+        // Create or update GDPR register
+        if (catalogService.GdprRegister == null)
+        {
+            var gdprRegister = new GdprDataRegister
+            {
+                DataCategories = dataCategories ?? new List<DataCategory>(),
+                ProcessingPurposes = processingPurposes ?? new List<ProcessingPurpose>(),
+                ProcessingFrequency = processingFrequency,
+                SecurityMeasures = securityMeasures ?? new List<SecurityMeasure>(),
+                ProcessesEmployeePii = processesEmployeePii,
+                ProcessesExternalUserPii = processesExternalUserPii,
+                ProcessesSensitiveData = processesSensitiveData,
+                SensitiveDataTypes = !string.IsNullOrEmpty(sensitiveDataTypes) 
+                    ? sensitiveDataTypes.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
+                    : new List<string>(),
+                HasProcessingAgreement = hasProcessingAgreement,
+                ProcessingAgreementReference = processingAgreementReference,
+                ProcessingAgreementDate = hasProcessingAgreement ? DateTime.UtcNow : null,
+                DataRetentionPeriod = dataRetentionDays.HasValue ? TimeSpan.FromDays(dataRetentionDays.Value) : null,
+                DataDeletionProcess = dataDeletionProcess,
+                SupportsDataPortability = supportsDataPortability,
+                SupportsDataDeletion = supportsDataDeletion,
+                SupportsDataCorrection = supportsDataCorrection,
+                DataProtectionOfficerContact = dataProtectionOfficerContact,
+                LastGdprAssessment = DateTime.UtcNow,
+                ComplianceNotes = complianceNotes,
+                DataTransfers = !string.IsNullOrEmpty(dataTransfers)
+                    ? dataTransfers.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
+                    : new List<string>(),
+                PurposesOfUse = !string.IsNullOrEmpty(purposesOfUse)
+                    ? purposesOfUse.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
+                    : new List<string>()
+            };
+
+            _context.GdprRegisters.Add(gdprRegister);
+            await _context.SaveChangesAsync();
+            
+            catalogService.GdprRegisterId = gdprRegister.Id;
+        }
+        else
+        {
+            // Update existing GDPR register
+            catalogService.GdprRegister.DataCategories = dataCategories ?? new List<DataCategory>();
+            catalogService.GdprRegister.ProcessingPurposes = processingPurposes ?? new List<ProcessingPurpose>();
+            catalogService.GdprRegister.ProcessingFrequency = processingFrequency;
+            catalogService.GdprRegister.SecurityMeasures = securityMeasures ?? new List<SecurityMeasure>();
+            catalogService.GdprRegister.ProcessesEmployeePii = processesEmployeePii;
+            catalogService.GdprRegister.ProcessesExternalUserPii = processesExternalUserPii;
+            catalogService.GdprRegister.ProcessesSensitiveData = processesSensitiveData;
+            catalogService.GdprRegister.SensitiveDataTypes = !string.IsNullOrEmpty(sensitiveDataTypes)
+                ? sensitiveDataTypes.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
+                : new List<string>();
+            catalogService.GdprRegister.HasProcessingAgreement = hasProcessingAgreement;
+            catalogService.GdprRegister.ProcessingAgreementReference = processingAgreementReference;
+            catalogService.GdprRegister.DataRetentionPeriod = dataRetentionDays.HasValue ? TimeSpan.FromDays(dataRetentionDays.Value) : null;
+            catalogService.GdprRegister.DataDeletionProcess = dataDeletionProcess;
+            catalogService.GdprRegister.SupportsDataPortability = supportsDataPortability;
+            catalogService.GdprRegister.SupportsDataDeletion = supportsDataDeletion;
+            catalogService.GdprRegister.SupportsDataCorrection = supportsDataCorrection;
+            catalogService.GdprRegister.DataProtectionOfficerContact = dataProtectionOfficerContact;
+            catalogService.GdprRegister.LastGdprAssessment = DateTime.UtcNow;
+            catalogService.GdprRegister.ComplianceNotes = complianceNotes;
+            catalogService.GdprRegister.DataTransfers = !string.IsNullOrEmpty(dataTransfers)
+                ? dataTransfers.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
+                : new List<string>();
+            catalogService.GdprRegister.PurposesOfUse = !string.IsNullOrEmpty(purposesOfUse)
+                ? purposesOfUse.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
+                : new List<string>();
+        }
+
+        await _context.SaveChangesAsync();
+        
+        TempData["Success"] = "GDPR compliance information has been successfully updated.";
+        return RedirectToAction(nameof(Details), new { id = serviceId });
+    }
+
     private bool CatalogServiceExists(int id)
     {
         return _context.Services.Any(e => e.Id == id);
