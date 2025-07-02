@@ -127,6 +127,12 @@ public class CatalogServiceController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Name,IsPropriety,VendorId,LicenseId,HostingType,HostingCountry,SaasRegionReference,SubscriptionId,GdprRegisterId")] CatalogService catalogService, ServiceLifecycleStageType initialStage = ServiceLifecycleStageType.ProofOfConcept)
     {
+        ModelState.Remove("License");
+        ModelState.Remove("Vendor");
+        ModelState.Remove("Lifecycle");
+
+        if (ModelState.IsValid)
+        {
             // Create initial lifecycle info with the specified stage
             var lifecycleInfo = new ServiceLifecycleInfo
             {
@@ -141,16 +147,17 @@ public class CatalogServiceController : Controller
                     }
                 }
             };
-            
+
             _context.ServiceLifecycles.Add(lifecycleInfo);
             await _context.SaveChangesAsync();
-            
+
             catalogService.LifecycleId = lifecycleInfo.Id;
-            
+
             _context.Add(catalogService);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        
+        }
+
         ViewData["VendorId"] = new SelectList(_context.Vendors, "Id", "Name", catalogService.VendorId);
         ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name", catalogService.LicenseId);
         ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.SubscriptionId);
@@ -173,12 +180,11 @@ public class CatalogServiceController : Controller
             return NotFound();
         }
         
-        ViewData["VendorId"] = new SelectList(_context.Vendors, "Id", "Name", catalogService.Vendor?.Id);
-        ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name", catalogService.License?.Id);
-        // Hosting properties are now directly on CatalogService model
-        ViewData["LifecycleId"] = new SelectList(_context.ServiceLifecycles, "Id", "CurrentStage", catalogService.Lifecycle?.Id);
-        ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.Subscription?.Id);
-        ViewData["GdprRegisterId"] = new SelectList(_context.GdprRegisters, "Id", "Id", catalogService.GdprRegister?.Id);
+        ViewData["VendorId"] = new SelectList(_context.Vendors, "Id", "Name", catalogService.VendorId);
+        ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name", catalogService.LicenseId);
+        ViewData["LifecycleId"] = new SelectList(_context.ServiceLifecycles, "Id", "CurrentStage", catalogService.LifecycleId);
+        ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.SubscriptionId);
+        ViewData["GdprRegisterId"] = new SelectList(_context.GdprRegisters, "Id", "Id", catalogService.GdprRegisterId);
         
         return View(catalogService);
     }
@@ -186,12 +192,15 @@ public class CatalogServiceController : Controller
     // POST: CatalogService/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IsPropriety,VendorId,LicenseId,HostingId,LifecycleId,SubscriptionId,GdprRegisterId")] CatalogService catalogService)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IsPropriety,VendorId,LicenseId,HostingType,HostingCountry,SaasRegionReference,LifecycleId,SubscriptionId,GdprRegisterId")] CatalogService catalogService)
     {
         if (id != catalogService.Id)
         {
             return NotFound();
         }
+        ModelState.Remove("License");
+        ModelState.Remove("Vendor");
+        ModelState.Remove("Lifecycle");
 
         if (ModelState.IsValid)
         {
@@ -214,12 +223,11 @@ public class CatalogServiceController : Controller
             return RedirectToAction(nameof(Index));
         }
         
-        ViewData["VendorId"] = new SelectList(_context.Vendors, "Id", "Name", catalogService.Vendor?.Id);
-        ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name", catalogService.License?.Id);
-        // Hosting properties are now directly on CatalogService model
-        ViewData["LifecycleId"] = new SelectList(_context.ServiceLifecycles, "Id", "CurrentStage", catalogService.Lifecycle?.Id);
-        ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.Subscription?.Id);
-        ViewData["GdprRegisterId"] = new SelectList(_context.GdprRegisters, "Id", "Id", catalogService.GdprRegister?.Id);
+        ViewData["VendorId"] = new SelectList(_context.Vendors, "Id", "Name", catalogService.VendorId);
+        ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name", catalogService.LicenseId);
+        ViewData["LifecycleId"] = new SelectList(_context.ServiceLifecycles, "Id", "CurrentStage", catalogService.LifecycleId);
+        ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.SubscriptionId);
+        ViewData["GdprRegisterId"] = new SelectList(_context.GdprRegisters, "Id", "Id", catalogService.GdprRegisterId);
         
         return View(catalogService);
     }
@@ -263,6 +271,56 @@ public class CatalogServiceController : Controller
 
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
+    }
+
+    // POST: CatalogService/AddLifecycleStage/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddLifecycleStage(int serviceId, ServiceLifecycleStageType stageType, string? sponsor = null, string? notes = null)
+    {
+        var catalogService = await _context.Services
+            .Include(s => s.Lifecycle)
+            .ThenInclude(l => l.Stages)
+            .FirstOrDefaultAsync(s => s.Id == serviceId);
+            
+        if (catalogService == null)
+        {
+            return NotFound();
+        }
+
+        // Check if stage already exists
+        if (catalogService.Lifecycle.Stages.Any(s => s.StageType == stageType))
+        {
+            TempData["Error"] = $"Stage '{stageType}' already exists for this service.";
+            return RedirectToAction(nameof(Details), new { id = serviceId });
+        }
+
+        // Complete the current stage if it's in progress
+        var currentStage = catalogService.Lifecycle.Stages
+            .FirstOrDefault(s => s.Status == ServiceLifecycleStageStatus.InProgress);
+        if (currentStage != null)
+        {
+            currentStage.Status = ServiceLifecycleStageStatus.Completed;
+            currentStage.EndDate = DateTime.UtcNow;
+        }
+
+        // Add the new stage
+        var newStage = new ServiceLifecycleStage
+        {
+            StageType = stageType,
+            Status = ServiceLifecycleStageStatus.InProgress,
+            StartDate = DateTime.UtcNow,
+            Sponsor = sponsor,
+            Notes = !string.IsNullOrEmpty(notes) ? new List<string> { notes } : new List<string>()
+        };
+
+        catalogService.Lifecycle.Stages.Add(newStage);
+        catalogService.Lifecycle.CurrentStage = stageType;
+
+        await _context.SaveChangesAsync();
+        
+        TempData["Success"] = $"Successfully added new lifecycle stage: {stageType}";
+        return RedirectToAction(nameof(Details), new { id = serviceId });
     }
 
     private bool CatalogServiceExists(int id)

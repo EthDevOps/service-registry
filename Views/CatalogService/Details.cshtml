@@ -19,6 +19,22 @@
                 </div>
             </div>
 
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
             <div class="row">
                 <!-- Main Information -->
                 <div class="col-lg-8">
@@ -48,8 +64,6 @@
                                             }
                                         </dd>
                                         
-                                        <dt class="col-sm-4">Service ID:</dt>
-                                        <dd class="col-sm-8"><code>@Model.Id</code></dd>
                                     </dl>
                                 </div>
                             </div>
@@ -302,29 +316,47 @@
                     </div>
 
                     <!-- Lifecycle Information -->
-                    @if (Model.Lifecycle != null && Model.Lifecycle.Stages != null && Model.Lifecycle.Stages.Any())
+                    @if (Model.Lifecycle != null)
                     {
                         <div class="card mb-4">
-                            <div class="card-header">
+                            <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0">
                                     <i class="fas fa-project-diagram"></i> Lifecycle Stages
                                 </h5>
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStageModal">
+                                    <i class="fas fa-plus"></i> Add Stage
+                                </button>
                             </div>
                             <div class="card-body">
-                                @foreach (var stage in Model.Lifecycle.Stages.OrderBy(s => s.StartDate))
+                                @if (Model.Lifecycle.Stages != null && Model.Lifecycle.Stages.Any())
                                 {
-                                    <div class="mb-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="badge @(stage.Status == ServiceLifecycleStageStatus.Completed ? "bg-success" : stage.Status == ServiceLifecycleStageStatus.InProgress ? "bg-primary" : "bg-secondary")">
-                                                @stage.StageType
-                                            </span>
-                                            <small class="text-muted">@stage.Status</small>
+                                    @foreach (var stage in Model.Lifecycle.Stages.OrderBy(s => s.StartDate))
+                                    {
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge @(stage.Status == ServiceLifecycleStageStatus.Completed ? "bg-success" : stage.Status == ServiceLifecycleStageStatus.InProgress ? "bg-primary" : "bg-secondary")">
+                                                    @stage.StageType
+                                                </span>
+                                                <small class="text-muted">@stage.Status</small>
+                                            </div>
+                                            @if (stage.StartDate.HasValue)
+                                            {
+                                                <small class="text-muted">Started: @stage.StartDate.Value.ToString("yyyy-MM-dd")</small>
+                                            }
+                                            @if (stage.EndDate.HasValue)
+                                            {
+                                                <br><small class="text-muted">Completed: @stage.EndDate.Value.ToString("yyyy-MM-dd")</small>
+                                            }
+                                            @if (!string.IsNullOrEmpty(stage.Sponsor))
+                                            {
+                                                <br><small class="text-muted">Sponsor: @stage.Sponsor</small>
+                                            }
                                         </div>
-                                        @if (stage.StartDate.HasValue)
-                                        {
-                                            <small class="text-muted">Started: @stage.StartDate.Value.ToString("yyyy-MM-dd")</small>
-                                        }
-                                    </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-muted">No lifecycle stages recorded yet.</p>
                                 }
                             </div>
                         </div>
@@ -394,6 +426,59 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Lifecycle Stage Modal -->
+<div class="modal fade" id="addStageModal" tabindex="-1" aria-labelledby="addStageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="AddLifecycleStage" method="post">
+                <input type="hidden" name="serviceId" value="@Model.Id" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStageModalLabel">Add New Lifecycle Stage</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="stageType" class="form-label">Stage Type <span class="text-danger">*</span></label>
+                        <select name="stageType" class="form-select" required>
+                            <option value="">-- Select Stage --</option>
+                            @foreach (var stageType in Enum.GetValues<ServiceLifecycleStageType>())
+                            {
+                                @if (Model.Lifecycle?.Stages?.Any(s => s.StageType == stageType) != true)
+                                {
+                                    <option value="@stageType">@stageType</option>
+                                }
+                            }
+                        </select>
+                        <div class="form-text">Select the next stage in the service lifecycle.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="sponsor" class="form-label">Sponsor (Optional)</label>
+                        <input type="text" name="sponsor" class="form-control" placeholder="e.g., John Doe, IT Department">
+                        <div class="form-text">Person or department sponsoring this stage.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (Optional)</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="Any additional notes about this stage..."></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> Adding a new stage will automatically complete the current in-progress stage and start the new one.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Stage
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
