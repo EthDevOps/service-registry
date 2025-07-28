@@ -378,7 +378,7 @@ public class CatalogServiceController : Controller
             return NotFound();
         }
 
-        // Handle Controller information
+        // Handle Controller information - create but don't save yet
         GdprController? controller = null;
         if (!string.IsNullOrEmpty(controllerName) && !string.IsNullOrEmpty(controllerEmail))
         {
@@ -392,11 +392,9 @@ public class CatalogServiceController : Controller
                 Country = controllerCountry ?? "",
                 Phone = controllerPhone ?? ""
             };
-            _context.GdprControllers.Add(controller);
-            await _context.SaveChangesAsync();
         }
 
-        // Handle DPO Organisation information
+        // Handle DPO Organisation information - create but don't save yet
         GdprDpoOrganisation? dpoOrganisation = null;
         if (hasExternalDpo && !string.IsNullOrEmpty(dpoOrganisationName))
         {
@@ -410,8 +408,6 @@ public class CatalogServiceController : Controller
                 Country = dpoOrganisationCountry ?? "",
                 Phone = dpoOrganisationPhone ?? ""
             };
-            _context.GdprDpoOrganisations.Add(dpoOrganisation);
-            await _context.SaveChangesAsync();
         }
 
         // Create or update GDPR register
@@ -504,6 +500,11 @@ public class CatalogServiceController : Controller
                     catalogService.GdprRegister.Controller.Phone = controllerPhone ?? "";
                 }
             }
+            else if (catalogService.GdprRegister.Controller != null)
+            {
+                // Remove controller if no longer provided
+                catalogService.GdprRegister.Controller = null;
+            }
 
             // Update or create DPO organisation
             if (hasExternalDpo && !string.IsNullOrEmpty(dpoOrganisationName))
@@ -526,7 +527,6 @@ public class CatalogServiceController : Controller
             else if (!hasExternalDpo && catalogService.GdprRegister.DpoOrganisation != null)
             {
                 // Remove DPO organisation if checkbox is unchecked
-                _context.GdprDpoOrganisations.Remove(catalogService.GdprRegister.DpoOrganisation);
                 catalogService.GdprRegister.DpoOrganisation = null;
             }
         }
