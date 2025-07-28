@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using QuokkaServiceRegistry.Data;
@@ -11,9 +12,11 @@ using QuokkaServiceRegistry.Data;
 namespace QuokkaServiceRegistry.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250728115531_gdpr-relations")]
+    partial class gdprrelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -421,16 +424,10 @@ namespace QuokkaServiceRegistry.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
-
-                    b.Property<int?>("PaymentMethodId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("WebsiteUrl")
                         .IsRequired()
@@ -440,8 +437,6 @@ namespace QuokkaServiceRegistry.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BillingInformationId");
-
-                    b.HasIndex("PaymentMethodId");
 
                     b.ToTable("Vendors");
                 });
@@ -679,111 +674,6 @@ namespace QuokkaServiceRegistry.Migrations
                     b.HasIndex("CloudProviderId");
 
                     b.ToTable("OnpremiseHosts");
-                });
-
-            modelBuilder.Entity("QuokkaServiceRegistry.Models.PaymentMethod", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccountNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("BankName")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("CardHolderName")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("CardNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<int>("CostCenterId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("ExpiryDate")
-                        .HasMaxLength(7)
-                        .HasColumnType("character varying(7)");
-
-                    b.Property<string>("Iban")
-                        .HasMaxLength(34)
-                        .HasColumnType("character varying(34)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("LastPaymentDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime?>("NextBillingDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal?>("OutstandingBalance")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("PaymentMethodId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<decimal?>("PrepaidBalance")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime?>("PrepaidExpiryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("PrepaidVoucherCode")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("RoutingNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("SepaCreditorId")
-                        .HasMaxLength(35)
-                        .HasColumnType("character varying(35)");
-
-                    b.Property<DateTime?>("SepaMandateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("SepaMandateId")
-                        .HasMaxLength(35)
-                        .HasColumnType("character varying(35)");
-
-                    b.Property<string>("Swift")
-                        .HasMaxLength(11)
-                        .HasColumnType("character varying(11)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CostCenterId");
-
-                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("QuokkaServiceRegistry.Models.ServiceLifecycleInfo", b =>
@@ -1074,13 +964,7 @@ namespace QuokkaServiceRegistry.Migrations
                         .WithMany()
                         .HasForeignKey("BillingInformationId");
 
-                    b.HasOne("QuokkaServiceRegistry.Models.PaymentMethod", "PaymentMethod")
-                        .WithMany("Vendors")
-                        .HasForeignKey("PaymentMethodId");
-
                     b.Navigation("BillingInformation");
-
-                    b.Navigation("PaymentMethod");
                 });
 
             modelBuilder.Entity("QuokkaServiceRegistry.Models.GdprDataRegister", b =>
@@ -1117,17 +1001,6 @@ namespace QuokkaServiceRegistry.Migrations
                     b.Navigation("CloudProvider");
                 });
 
-            modelBuilder.Entity("QuokkaServiceRegistry.Models.PaymentMethod", b =>
-                {
-                    b.HasOne("QuokkaServiceRegistry.Models.CostCenter", "CostCenter")
-                        .WithMany()
-                        .HasForeignKey("CostCenterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CostCenter");
-                });
-
             modelBuilder.Entity("QuokkaServiceRegistry.Models.ServiceLifecycleStage", b =>
                 {
                     b.HasOne("QuokkaServiceRegistry.Models.ServiceLifecycleInfo", null)
@@ -1138,11 +1011,6 @@ namespace QuokkaServiceRegistry.Migrations
             modelBuilder.Entity("QuokkaServiceRegistry.Models.CatalogService", b =>
                 {
                     b.Navigation("OnpremiseHosts");
-                });
-
-            modelBuilder.Entity("QuokkaServiceRegistry.Models.PaymentMethod", b =>
-                {
-                    b.Navigation("Vendors");
                 });
 
             modelBuilder.Entity("QuokkaServiceRegistry.Models.ServiceLifecycleInfo", b =>

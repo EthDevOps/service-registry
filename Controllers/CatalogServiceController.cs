@@ -101,6 +101,10 @@ public class CatalogServiceController : Controller
                 .ThenInclude(l => l.Stages)
             .Include(s => s.Subscription)
             .Include(s => s.GdprRegister)
+                .ThenInclude(l => l.Controller)
+            .Include(s => s.GdprRegister)
+                .ThenInclude(l => l.DpoOrganisation)
+                
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (catalogService == null)

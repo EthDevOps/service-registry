@@ -1,0 +1,280 @@
+@model QuokkaServiceRegistry.Models.PaymentMethod
+
+@{
+    ViewData["Title"] = "Edit Payment Method";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-edit text-primary"></i> Edit Payment Method
+                    </h1>
+                    <p class="text-muted mb-0">Update payment method information</p>
+                </div>
+                <div>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form asp-action="Edit" id="paymentForm">
+                                <input type="hidden" asp-for="Id" />
+                                <input type="hidden" asp-for="CreatedAt" />
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                
+                                <!-- Basic Information -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label asp-for="Name" class="form-label">Payment Method Name</label>
+                                        <input asp-for="Name" class="form-control" placeholder="e.g., Corporate Amex" />
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Type" class="form-label">Payment Type</label>
+                                        <select asp-for="Type" class="form-select" id="paymentType" onchange="togglePaymentFields()">
+                                            <option value="@PaymentMethodType.CreditCard">Credit Card</option>
+                                            <option value="@PaymentMethodType.BankTransfer">Bank Transfer</option>
+                                            <option value="@PaymentMethodType.SEPA">SEPA</option>
+                                            <option value="@PaymentMethodType.Prepaid">Prepaid</option>
+                                        </select>
+                                        <span asp-validation-for="Type" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label asp-for="CostCenterId" class="form-label">Cost Center</label>
+                                        <select asp-for="CostCenterId" class="form-select" asp-items="ViewBag.CostCenterId">
+                                            <option value="">-- Select Cost Center --</option>
+                                        </select>
+                                        <span asp-validation-for="CostCenterId" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Description" class="form-label">Description</label>
+                                        <input asp-for="Description" class="form-control" placeholder="Optional description" />
+                                        <span asp-validation-for="Description" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                            <label asp-for="IsActive" class="form-check-label">
+                                                Active
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Credit Card Fields -->
+                                <div id="creditCardFields" style="display: none;">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-credit-card"></i> Credit Card Details
+                                    </h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label asp-for="CardHolderName" class="form-label">Card Holder Name</label>
+                                            <input asp-for="CardHolderName" class="form-control" />
+                                            <span asp-validation-for="CardHolderName" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label asp-for="CardNumber" class="form-label">Card Number</label>
+                                            <input asp-for="CardNumber" class="form-control" placeholder="**** **** **** 1234" />
+                                            <span asp-validation-for="CardNumber" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
+                                            <input asp-for="ExpiryDate" class="form-control" placeholder="MM/YYYY" />
+                                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bank Transfer Fields -->
+                                <div id="bankTransferFields" style="display: none;">
+                                    <h5 class="text-success mb-3">
+                                        <i class="fas fa-university"></i> Bank Transfer Details
+                                    </h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label asp-for="BankName" class="form-label">Bank Name</label>
+                                            <input asp-for="BankName" class="form-control" />
+                                            <span asp-validation-for="BankName" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label asp-for="AccountNumber" class="form-label">Account Number</label>
+                                            <input asp-for="AccountNumber" class="form-control" />
+                                            <span asp-validation-for="AccountNumber" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label asp-for="RoutingNumber" class="form-label">Routing Number</label>
+                                            <input asp-for="RoutingNumber" class="form-control" />
+                                            <span asp-validation-for="RoutingNumber" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label asp-for="Swift" class="form-label">SWIFT Code</label>
+                                            <input asp-for="Swift" class="form-control" />
+                                            <span asp-validation-for="Swift" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-4">
+                                        <div class="col-md-12">
+                                            <label asp-for="Iban" class="form-label">IBAN</label>
+                                            <input asp-for="Iban" class="form-control" />
+                                            <span asp-validation-for="Iban" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SEPA Fields -->
+                                <div id="sepaFields" style="display: none;">
+                                    <h5 class="text-info mb-3">
+                                        <i class="fas fa-euro-sign"></i> SEPA Details
+                                    </h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label asp-for="SepaMandateId" class="form-label">SEPA Mandate ID</label>
+                                            <input asp-for="SepaMandateId" class="form-control" />
+                                            <span asp-validation-for="SepaMandateId" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label asp-for="SepaCreditorId" class="form-label">SEPA Creditor ID</label>
+                                            <input asp-for="SepaCreditorId" class="form-control" />
+                                            <span asp-validation-for="SepaCreditorId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label asp-for="SepaMandateDate" class="form-label">Mandate Date</label>
+                                            <input asp-for="SepaMandateDate" class="form-control" type="date" value="@(Model.SepaMandateDate?.ToString("yyyy-MM-dd"))" />
+                                            <span asp-validation-for="SepaMandateDate" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-12 mt-3">
+                                            <label asp-for="Iban" class="form-label">IBAN</label>
+                                            <input asp-for="Iban" class="form-control" />
+                                            <span asp-validation-for="Iban" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Prepaid Fields -->
+                                <div id="prepaidFields" style="display: none;">
+                                    <h5 class="text-warning mb-3">
+                                        <i class="fas fa-gift-card"></i> Prepaid Details
+                                    </h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label asp-for="PrepaidVoucherCode" class="form-label">Voucher Code</label>
+                                            <input asp-for="PrepaidVoucherCode" class="form-control" />
+                                            <span asp-validation-for="PrepaidVoucherCode" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label asp-for="PrepaidBalance" class="form-label">Balance</label>
+                                            <input asp-for="PrepaidBalance" class="form-control" type="number" step="0.01" />
+                                            <span asp-validation-for="PrepaidBalance" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label asp-for="PrepaidExpiryDate" class="form-label">Expiry Date</label>
+                                            <input asp-for="PrepaidExpiryDate" class="form-control" type="date" value="@(Model.PrepaidExpiryDate?.ToString("yyyy-MM-dd"))" />
+                                            <span asp-validation-for="PrepaidExpiryDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Update Payment Method
+                                    </button>
+                                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Linked Vendors Info -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-info-circle"></i> Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Created:</strong><br>
+                                <span class="text-muted">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+                            </div>
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <div class="mb-3">
+                                    <strong>Last Updated:</strong><br>
+                                    <span class="text-muted">@Model.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</span>
+                                </div>
+                            }
+                            <div class="mb-3">
+                                <strong>Linked Vendors:</strong><br>
+                                <span class="badge bg-info">@Model.Vendors.Count vendors</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePaymentFields() {
+    const paymentType = document.getElementById('paymentType').value;
+    
+    // Hide all fields
+    document.getElementById('creditCardFields').style.display = 'none';
+    document.getElementById('bankTransferFields').style.display = 'none';
+    document.getElementById('sepaFields').style.display = 'none';
+    document.getElementById('prepaidFields').style.display = 'none';
+    
+    // Show relevant fields
+    switch(paymentType) {
+        case '@PaymentMethodType.CreditCard':
+            document.getElementById('creditCardFields').style.display = 'block';
+            break;
+        case '@PaymentMethodType.BankTransfer':
+            document.getElementById('bankTransferFields').style.display = 'block';
+            break;
+        case '@PaymentMethodType.SEPA':
+            document.getElementById('sepaFields').style.display = 'block';
+            break;
+        case '@PaymentMethodType.Prepaid':
+            document.getElementById('prepaidFields').style.display = 'block';
+            break;
+    }
+}
+
+// Initialize the form on page load
+document.addEventListener('DOMContentLoaded', function() {
+    togglePaymentFields();
+});
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

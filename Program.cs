@@ -55,6 +55,7 @@ public class Program
             context.Database.Migrate();
             
             SeedData.SeedLicenses(context);
+            SeedData.SeedCostCenters(context);
         }
 
         app.Run();

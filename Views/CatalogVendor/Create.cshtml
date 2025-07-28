@@ -149,8 +149,7 @@
             $('input[name="WebsiteUrl"]').val('https://samplevendor.com');
             $('input[name="Country"]').val('United States');
             $('input[name="City"]').val('San Francisco');
-            $('select[name="BillingType"]').val('Free').trigger('change');
-            $('input[name="CardHolderName"]').val('John Doe');
+            $('input[name="IsActive"]').prop('checked', true);
         }
 
         function validateForm() {
@@ -177,7 +176,7 @@
         function clearForm() {
             if (confirm('Are you sure you want to clear all form data?')) {
                 $('form')[0].reset();
-                toggleBillingSections(); // Reset billing sections after form reset
+                showPaymentMethodPreview(); // Reset payment method preview
             }
         }
     </script>

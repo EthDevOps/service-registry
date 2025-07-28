@@ -146,4 +146,52 @@ public static class SeedData
         context.Licenses.AddRange(licenses);
         context.SaveChanges();
     }
+
+    public static void SeedCostCenters(ApplicationDbContext context)
+    {
+        if (context.CostCenters.Any()) return;
+
+        var costCenters = new[]
+        {
+            new CostCenter
+            {
+                Name = "IT Department",
+                Code = "IT001",
+                Description = "Information Technology department costs"
+            },
+            new CostCenter
+            {
+                Name = "Marketing",
+                Code = "MKT001",
+                Description = "Marketing and advertising expenses"
+            },
+            new CostCenter
+            {
+                Name = "Sales",
+                Code = "SAL001",
+                Description = "Sales team and customer acquisition costs"
+            },
+            new CostCenter
+            {
+                Name = "Operations",
+                Code = "OPS001",
+                Description = "General operational expenses"
+            },
+            new CostCenter
+            {
+                Name = "Finance",
+                Code = "FIN001",
+                Description = "Finance and accounting department"
+            },
+            new CostCenter
+            {
+                Name = "Human Resources",
+                Code = "HR001",
+                Description = "HR and employee-related expenses"
+            }
+        };
+
+        context.CostCenters.AddRange(costCenters);
+        context.SaveChanges();
+    }
 }

@@ -22,6 +22,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<GdprDataRegister> GdprRegisters { get; set; }
     public DbSet<GdprController> GdprControllers { get; set; }
     public DbSet<GdprDpoOrganisation> GdprDpoOrganisations { get; set; }
+    public DbSet<PaymentMethod> PaymentMethods { get; set; }
     public DbSet<ServiceLifecycleInfo> ServiceLifecycles { get; set; }
     public DbSet<ServiceLifecycleStage> LifecycleStages { get; set; }
 
@@ -62,6 +63,7 @@ public class ApplicationDbContext : IdentityDbContext
             entity.Property(e => e.Country).HasMaxLength(100);
             entity.Property(e => e.City).HasMaxLength(100);
             entity.HasOne(e => e.BillingInformation).WithMany().HasForeignKey(e => e.BillingInformationId);
+            entity.HasOne(e => e.PaymentMethod).WithMany(p => p.Vendors).HasForeignKey(e => e.PaymentMethodId);
         });
 
         // Configure ServiceSubscription
@@ -209,6 +211,29 @@ public class ApplicationDbContext : IdentityDbContext
             entity.Property(e => e.Name).HasMaxLength(200);
             entity.Property(e => e.Code).HasMaxLength(50);
             entity.Property(e => e.Description).HasMaxLength(500);
+        });
+
+        // Configure PaymentMethod
+        modelBuilder.Entity<PaymentMethod>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Type).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.CardNumber).HasMaxLength(20);
+            entity.Property(e => e.CardHolderName).HasMaxLength(200);
+            entity.Property(e => e.ExpiryDate).HasMaxLength(7);
+            entity.Property(e => e.BankName).HasMaxLength(200);
+            entity.Property(e => e.AccountNumber).HasMaxLength(50);
+            entity.Property(e => e.RoutingNumber).HasMaxLength(20);
+            entity.Property(e => e.Iban).HasMaxLength(34);
+            entity.Property(e => e.Swift).HasMaxLength(11);
+            entity.Property(e => e.SepaMandateId).HasMaxLength(35);
+            entity.Property(e => e.SepaCreditorId).HasMaxLength(35);
+            entity.Property(e => e.PrepaidVoucherCode).HasMaxLength(100);
+            entity.Property(e => e.PaymentMethodId).HasMaxLength(100);
+            entity.HasOne(e => e.CostCenter).WithMany().HasForeignKey(e => e.CostCenterId);
+            entity.HasMany(e => e.Vendors).WithOne(v => v.PaymentMethod).HasForeignKey(v => v.PaymentMethodId);
         });
     }
 }

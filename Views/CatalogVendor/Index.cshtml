@@ -30,7 +30,7 @@
                                         Location
                                     </th>
                                     <th>
-                                        Billing Type
+                                        Payment Method
                                     </th>
                                     <th>
                                         Services Count
@@ -68,10 +68,30 @@
                                             }
                                         </td>
                                         <td>
-                                            @if (vendor.BillingInformation != null)
+                                            @if (vendor.PaymentMethod != null)
                                             {
-                                                <span class="badge bg-info">@vendor.BillingInformation.Type</span>
-                                                @if (vendor.BillingInformation.IsActive)
+                                                @switch (vendor.PaymentMethod.Type)
+                                                {
+                                                    case PaymentMethodType.CreditCard:
+                                                        <i class="fas fa-credit-card text-primary me-1"></i>
+                                                        <span class="badge bg-primary">@vendor.PaymentMethod.Type</span>
+                                                        break;
+                                                    case PaymentMethodType.BankTransfer:
+                                                        <i class="fas fa-university text-success me-1"></i>
+                                                        <span class="badge bg-success">@vendor.PaymentMethod.Type</span>
+                                                        break;
+                                                    case PaymentMethodType.SEPA:
+                                                        <i class="fas fa-euro-sign text-info me-1"></i>
+                                                        <span class="badge bg-info">@vendor.PaymentMethod.Type</span>
+                                                        break;
+                                                    case PaymentMethodType.Prepaid:
+                                                        <i class="fas fa-gift-card text-warning me-1"></i>
+                                                        <span class="badge bg-warning text-dark">@vendor.PaymentMethod.Type</span>
+                                                        break;
+                                                }
+                                                <br>
+                                                <small class="text-muted">@vendor.PaymentMethod.Name</small>
+                                                @if (vendor.IsActive)
                                                 {
                                                     <span class="badge bg-success ms-1">Active</span>
                                                 }
@@ -82,7 +102,15 @@
                                             }
                                             else
                                             {
-                                                <span class="text-muted">No billing info</span>
+                                                <span class="text-muted">No payment method</span>
+                                                @if (vendor.IsActive)
+                                                {
+                                                    <span class="badge bg-success ms-1">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary ms-1">Inactive</span>
+                                                }
                                             }
                                         </td>
                                         <td>
@@ -155,8 +183,8 @@
                                         <i class="fas fa-shield-alt fa-2x"></i>
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <div class="h4 mb-0">@Model.Count(v => v.BillingInformation?.IsActive == true)</div>
-                                        <div class="small">Active Billing</div>
+                                        <div class="h4 mb-0">@Model.Count(v => v.IsActive)</div>
+                                        <div class="small">Active Vendors</div>
                                     </div>
                                 </div>
                             </div>
@@ -170,8 +198,8 @@
                                         <i class="fas fa-credit-card fa-2x"></i>
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <div class="h4 mb-0">@Model.Count(v => v.BillingInformation != null && v.BillingInformation.IsActive)</div>
-                                        <div class="small">Active Billing</div>
+                                        <div class="h4 mb-0">@Model.Count(v => v.PaymentMethod != null)</div>
+                                        <div class="small">With Payment Methods</div>
                                     </div>
                                 </div>
                             </div>

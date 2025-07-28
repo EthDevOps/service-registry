@@ -80,25 +80,69 @@
                         </div>
                     }
 
-                    <!-- Billing Information -->
-                    @if (Model.BillingInformation != null)
-                    {
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-credit-card"></i> Billing Information
-                                </h5>
-                            </div>
-                            <div class="card-body">
+                    <!-- Payment Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-credit-card"></i> Payment Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.PaymentMethod != null)
+                            {
                                 <dl class="row">
-                                    <dt class="col-sm-3">Billing Type:</dt>
+                                    <dt class="col-sm-3">Payment Method:</dt>
                                     <dd class="col-sm-9">
-                                        <span class="badge bg-info">@Model.BillingInformation.Type</span>
+                                        @switch (Model.PaymentMethod.Type)
+                                        {
+                                            case PaymentMethodType.CreditCard:
+                                                <i class="fas fa-credit-card text-primary me-2"></i>
+                                                <span class="badge bg-primary">@Model.PaymentMethod.Type</span>
+                                                break;
+                                            case PaymentMethodType.BankTransfer:
+                                                <i class="fas fa-university text-success me-2"></i>
+                                                <span class="badge bg-success">@Model.PaymentMethod.Type</span>
+                                                break;
+                                            case PaymentMethodType.SEPA:
+                                                <i class="fas fa-euro-sign text-info me-2"></i>
+                                                <span class="badge bg-info">@Model.PaymentMethod.Type</span>
+                                                break;
+                                            case PaymentMethodType.Prepaid:
+                                                <i class="fas fa-gift-card text-warning me-2"></i>
+                                                <span class="badge bg-warning text-dark">@Model.PaymentMethod.Type</span>
+                                                break;
+                                        }
                                     </dd>
                                     
-                                    <dt class="col-sm-3">Status:</dt>
+                                    <dt class="col-sm-3">Name:</dt>
                                     <dd class="col-sm-9">
-                                        @if (Model.BillingInformation.IsActive)
+                                        <strong>@Model.PaymentMethod.Name</strong>
+                                        <a asp-controller="Payment" asp-action="Details" asp-route-id="@Model.PaymentMethod.Id" class="btn btn-outline-primary btn-sm ms-2">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </dd>
+                                    
+                                    @if (!string.IsNullOrEmpty(Model.PaymentMethod.Description))
+                                    {
+                                        <dt class="col-sm-3">Description:</dt>
+                                        <dd class="col-sm-9">@Model.PaymentMethod.Description</dd>
+                                    }
+                                    
+                                    @if (Model.PaymentMethod.CostCenter != null)
+                                    {
+                                        <dt class="col-sm-3">Cost Center:</dt>
+                                        <dd class="col-sm-9">
+                                            <span class="badge bg-secondary">@Model.PaymentMethod.CostCenter.Name</span>
+                                            @if (!string.IsNullOrEmpty(Model.PaymentMethod.CostCenter.Code))
+                                            {
+                                                <small class="text-muted ms-1">(@Model.PaymentMethod.CostCenter.Code)</small>
+                                            }
+                                        </dd>
+                                    }
+                                    
+                                    <dt class="col-sm-3">Payment Status:</dt>
+                                    <dd class="col-sm-9">
+                                        @if (Model.PaymentMethod.IsActive)
                                         {
                                             <span class="badge bg-success">Active</span>
                                         }
@@ -107,58 +151,35 @@
                                             <span class="badge bg-secondary">Inactive</span>
                                         }
                                     </dd>
-                                    
-                                    @if (Model.BillingInformation.CostCenter != null)
-                                    {
-                                        <dt class="col-sm-3">Cost Center:</dt>
-                                        <dd class="col-sm-9">
-                                            @if (!string.IsNullOrEmpty(Model.BillingInformation.CostCenter.Name))
-                                            {
-                                                <span class="badge bg-secondary">@Model.BillingInformation.CostCenter.Name</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted">Default Cost Center</span>
-                                            }
-                                        </dd>
-                                    }
-                                    
-                                    @if (Model.BillingInformation.LastPaymentDate.HasValue)
-                                    {
-                                        <dt class="col-sm-3">Last Payment:</dt>
-                                        <dd class="col-sm-9">@Model.BillingInformation.LastPaymentDate.Value.ToString("yyyy-MM-dd")</dd>
-                                    }
-                                    
-                                    @if (Model.BillingInformation.NextBillingDate.HasValue)
-                                    {
-                                        <dt class="col-sm-3">Next Billing:</dt>
-                                        <dd class="col-sm-9">@Model.BillingInformation.NextBillingDate.Value.ToString("yyyy-MM-dd")</dd>
-                                    }
                                 </dl>
-
-                                @if (Model.BillingInformation.Type == BillingType.CreditCard)
-                                {
-                                    <h6 class="mt-3">Credit Card Information</h6>
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle"></i>
-                                        Credit card details are securely stored and masked for security purposes.
-                                        @if (!string.IsNullOrEmpty(Model.BillingInformation.CardHolderName))
-                                        {
-                                            <br><strong>Card Holder:</strong> @Model.BillingInformation.CardHolderName
-                                        }
-                                        @if (!string.IsNullOrEmpty(Model.BillingInformation.CardNumber))
-                                        {
-                                            <br /><strong>Card Number:</strong> @("****-****-****-" + (Model.BillingInformation.CardNumber.Length >= 4 ? Model.BillingInformation.CardNumber.Substring(Model.BillingInformation.CardNumber.Length - 4) : Model.BillingInformation.CardNumber))
-                                        }
-                                        @if (!string.IsNullOrEmpty(Model.BillingInformation.ExpiryDate))
-                                        {
-                                            <br /><strong>Expiry Date:</strong> @Model.BillingInformation.ExpiryDate
-                                        }
-                                    </div>
-                                }
-                            </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-3">
+                                    <i class="fas fa-credit-card text-muted fa-2x mb-2"></i>
+                                    <p class="text-muted mb-0">No payment method assigned to this vendor</p>
+                                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm mt-2">
+                                        <i class="fas fa-plus"></i> Assign Payment Method
+                                    </a>
+                                </div>
+                            }
+                            
+                            <hr>
+                            <dl class="row">
+                                <dt class="col-sm-3">Vendor Status:</dt>
+                                <dd class="col-sm-9">
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </dd>
+                            </dl>
                         </div>
-                    }
+                    </div>
 
 
                     <!-- Services Using This Vendor -->
@@ -250,8 +271,8 @@
                             
                             
                             <div class="mb-3">
-                                <small class="text-muted">Billing Status</small><br>
-                                @if (Model.BillingInformation?.IsActive == true)
+                                <small class="text-muted">Vendor Status</small><br>
+                                @if (Model.IsActive)
                                 {
                                     <span class="badge bg-success">Active</span>
                                 }

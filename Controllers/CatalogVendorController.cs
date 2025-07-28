@@ -19,8 +19,8 @@ public class CatalogVendorController : Controller
     public async Task<IActionResult> Index()
     {
         var vendors = await _context.Vendors
-            .Include(v => v.BillingInformation)
-                .ThenInclude(b => b.CostCenter)
+            .Include(v => v.PaymentMethod)
+                .ThenInclude(p => p.CostCenter)
             .ToListAsync();
 
         return View(vendors);
@@ -35,10 +35,8 @@ public class CatalogVendorController : Controller
         }
 
         var vendor = await _context.Vendors
-            .Include(v => v.BillingInformation)
-                .ThenInclude(b => b.CostCenter)
-            .Include(v => v.BillingInformation)
-                .ThenInclude(b => b.BillingAddress)
+            .Include(v => v.PaymentMethod)
+                .ThenInclude(p => p.CostCenter)
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (vendor == null)
@@ -59,7 +57,17 @@ public class CatalogVendorController : Controller
     // GET: CatalogVendor/Create
     public IActionResult Create()
     {
-        ViewData["CostCenterId"] = new SelectList(_context.CostCenters, "Id", "Name");
+        var paymentMethods = _context.PaymentMethods
+            .Include(p => p.CostCenter)
+            .Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = $"{p.Name} ({p.Type})",
+                Group = new SelectListGroup { Name = p.Type.ToString() }
+            })
+            .ToList();
+            
+        ViewData["PaymentMethodId"] = paymentMethods;
         
         var viewModel = new VendorBillingViewModel();
         return View(viewModel);
@@ -70,39 +78,10 @@ public class CatalogVendorController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(VendorBillingViewModel viewModel)
     {
-        // Remove validation errors for complex objects
-        ModelState.Remove("BillingInformation");
-
         if (ModelState.IsValid)
         {
-            // Get or create cost center
-            CostCenter? costCenter = null;
-            if (viewModel.CostCenterId.HasValue && viewModel.CostCenterId > 0)
-            {
-                costCenter = await _context.CostCenters.FindAsync(viewModel.CostCenterId.Value);
-            }
-            
-            if (costCenter == null)
-            {
-                costCenter = new CostCenter { Name = "Default" };
-                _context.CostCenters.Add(costCenter);
-                await _context.SaveChangesAsync();
-            }
-
-            // Create billing information
-            var billingInfo = new BillingInformation
-            {
-                CostCenter = costCenter
-            };
-            viewModel.UpdateBillingInformation(billingInfo, costCenter);
-            _context.BillingInfo.Add(billingInfo);
-            await _context.SaveChangesAsync();
-
             // Create vendor
-            var vendor = new CatalogVendor
-            {
-                BillingInformation = billingInfo
-            };
+            var vendor = new CatalogVendor();
             viewModel.UpdateVendor(vendor);
             
             _context.Vendors.Add(vendor);
@@ -111,7 +90,18 @@ public class CatalogVendorController : Controller
             return RedirectToAction(nameof(Index));
         }
         
-        ViewData["CostCenterId"] = new SelectList(_context.CostCenters, "Id", "Name", viewModel.CostCenterId);
+        // Repopulate ViewData on validation failure
+        var paymentMethods = _context.PaymentMethods
+            .Include(p => p.CostCenter)
+            .Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = $"{p.Name} ({p.Type})",
+                Group = new SelectListGroup { Name = p.Type.ToString() }
+            })
+            .ToList();
+            
+        ViewData["PaymentMethodId"] = paymentMethods;
         
         return View(viewModel);
     }
@@ -125,8 +115,8 @@ public class CatalogVendorController : Controller
         }
 
         var vendor = await _context.Vendors
-            .Include(v => v.BillingInformation)
-                .ThenInclude(b => b.CostCenter)
+            .Include(v => v.PaymentMethod)
+                .ThenInclude(p => p.CostCenter)
             .FirstOrDefaultAsync(v => v.Id == id);
             
         if (vendor == null)
@@ -134,7 +124,18 @@ public class CatalogVendorController : Controller
             return NotFound();
         }
         
-        ViewData["CostCenterId"] = new SelectList(_context.CostCenters, "Id", "Name", vendor.BillingInformation?.CostCenter?.Id);
+        var paymentMethods = _context.PaymentMethods
+            .Include(p => p.CostCenter)
+            .Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = $"{p.Name} ({p.Type})",
+                Group = new SelectListGroup { Name = p.Type.ToString() },
+                Selected = p.Id == vendor.PaymentMethodId
+            })
+            .ToList();
+            
+        ViewData["PaymentMethodId"] = paymentMethods;
         
         var viewModel = VendorBillingViewModel.FromVendor(vendor);
         return View(viewModel);
@@ -150,18 +151,12 @@ public class CatalogVendorController : Controller
             return NotFound();
         }
 
-        // Remove validation errors for complex objects
-        ModelState.Remove("BillingInformation");
-
         if (ModelState.IsValid)
         {
             try
             {
-                // Load existing vendor with billing information
-                var vendor = await _context.Vendors
-                    .Include(v => v.BillingInformation)
-                        .ThenInclude(b => b.CostCenter)
-                    .FirstOrDefaultAsync(v => v.Id == id);
+                // Load existing vendor
+                var vendor = await _context.Vendors.FindAsync(id);
 
                 if (vendor == null)
                 {
@@ -170,32 +165,6 @@ public class CatalogVendorController : Controller
 
                 // Update vendor properties
                 viewModel.UpdateVendor(vendor);
-
-                // Get or create cost center
-                CostCenter? costCenter = null;
-                if (viewModel.CostCenterId.HasValue && viewModel.CostCenterId > 0)
-                {
-                    costCenter = await _context.CostCenters.FindAsync(viewModel.CostCenterId.Value);
-                }
-                
-                if (costCenter == null)
-                {
-                    costCenter = new CostCenter { Name = "Default" };
-                    _context.CostCenters.Add(costCenter);
-                    await _context.SaveChangesAsync();
-                }
-
-                // Update or create billing information
-                if (vendor.BillingInformation == null)
-                {
-                    vendor.BillingInformation = new BillingInformation
-                    {
-                        CostCenter = costCenter
-                    };
-                    _context.BillingInfo.Add(vendor.BillingInformation);
-                }
-
-                viewModel.UpdateBillingInformation(vendor.BillingInformation, costCenter);
                 
                 await _context.SaveChangesAsync();
             }
@@ -213,7 +182,19 @@ public class CatalogVendorController : Controller
             return RedirectToAction(nameof(Index));
         }
         
-        ViewData["CostCenterId"] = new SelectList(_context.CostCenters, "Id", "Name", viewModel.CostCenterId);
+        // Repopulate ViewData on validation failure
+        var paymentMethods = _context.PaymentMethods
+            .Include(p => p.CostCenter)
+            .Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = $"{p.Name} ({p.Type})",
+                Group = new SelectListGroup { Name = p.Type.ToString() },
+                Selected = p.Id == viewModel.PaymentMethodId
+            })
+            .ToList();
+            
+        ViewData["PaymentMethodId"] = paymentMethods;
         
         return View(viewModel);
     }

@@ -1,0 +1,148 @@
+@model IEnumerable<QuokkaServiceRegistry.Models.PaymentMethod>
+
+@{
+    ViewData["Title"] = "Payment Methods";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-credit-card text-primary"></i> Payment Methods
+                    </h1>
+                    <p class="text-muted mb-0">Manage centralized payment methods for vendors</p>
+                </div>
+                <div>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Payment Method
+                    </a>
+                </div>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-credit-card text-muted" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3 text-muted">No Payment Methods</h5>
+                            <p class="text-muted">Get started by adding your first payment method.</p>
+                            <a asp-action="Create" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Payment Method
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Cost Center</th>
+                                        <th>Linked Vendors</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th width="200">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @switch (item.Type)
+                                                    {
+                                                        case PaymentMethodType.CreditCard:
+                                                            <i class="fas fa-credit-card text-primary me-2"></i>
+                                                            break;
+                                                        case PaymentMethodType.BankTransfer:
+                                                            <i class="fas fa-university text-success me-2"></i>
+                                                            break;
+                                                        case PaymentMethodType.SEPA:
+                                                            <i class="fas fa-euro-sign text-info me-2"></i>
+                                                            break;
+                                                        case PaymentMethodType.Prepaid:
+                                                            <i class="fas fa-gift-card text-warning me-2"></i>
+                                                            break;
+                                                    }
+                                                    <div>
+                                                        <div class="fw-bold">@item.Name</div>
+                                                        @if (!string.IsNullOrEmpty(item.Description))
+                                                        {
+                                                            <small class="text-muted">@item.Description</small>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">@item.Type</span>
+                                            </td>
+                                            <td>@item.CostCenter?.Name</td>
+                                            <td>
+                                                @if (item.Vendors.Any())
+                                                {
+                                                    <span class="badge bg-info">@item.Vendors.Count vendors</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No vendors</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="text-muted small">@item.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
