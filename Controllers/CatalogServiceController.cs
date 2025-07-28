@@ -337,23 +337,81 @@ public class CatalogServiceController : Controller
         string? sensitiveDataTypes = null,
         bool hasProcessingAgreement = false,
         string? processingAgreementReference = null,
+        DateTime? processingAgreementDate = null,
         int? dataRetentionDays = null,
         string? dataDeletionProcess = null,
         bool supportsDataPortability = false,
         bool supportsDataDeletion = false,
         bool supportsDataCorrection = false,
         string? dataProtectionOfficerContact = null,
+        DateTime? lastGdprAssessment = null,
         string? complianceNotes = null,
         string? dataTransfers = null,
-        string? purposesOfUse = null)
+        string? purposesOfUse = null,
+        // Controller parameters
+        string? controllerName = null,
+        string? controllerEmail = null,
+        string? controllerAddress = null,
+        string? controllerZipCode = null,
+        string? controllerCity = null,
+        string? controllerCountry = null,
+        string? controllerPhone = null,
+        // DPO parameters
+        bool hasExternalDpo = false,
+        string? dpoOrganisationName = null,
+        string? dpoOrganisationEmail = null,
+        string? dpoOrganisationAddress = null,
+        string? dpoOrganisationZipCode = null,
+        string? dpoOrganisationCity = null,
+        string? dpoOrganisationCountry = null,
+        string? dpoOrganisationPhone = null)
     {
         var catalogService = await _context.Services
             .Include(s => s.GdprRegister)
+                .ThenInclude(g => g.Controller)
+            .Include(s => s.GdprRegister)
+                .ThenInclude(g => g.DpoOrganisation)
             .FirstOrDefaultAsync(s => s.Id == serviceId);
             
         if (catalogService == null)
         {
             return NotFound();
+        }
+
+        // Handle Controller information
+        GdprController? controller = null;
+        if (!string.IsNullOrEmpty(controllerName) && !string.IsNullOrEmpty(controllerEmail))
+        {
+            controller = new GdprController
+            {
+                Name = controllerName,
+                Email = controllerEmail,
+                Address = controllerAddress ?? "",
+                ZipCode = controllerZipCode ?? "",
+                City = controllerCity ?? "",
+                Country = controllerCountry ?? "",
+                Phone = controllerPhone ?? ""
+            };
+            _context.GdprControllers.Add(controller);
+            await _context.SaveChangesAsync();
+        }
+
+        // Handle DPO Organisation information
+        GdprDpoOrganisation? dpoOrganisation = null;
+        if (hasExternalDpo && !string.IsNullOrEmpty(dpoOrganisationName))
+        {
+            dpoOrganisation = new GdprDpoOrganisation
+            {
+                Name = dpoOrganisationName,
+                Email = dpoOrganisationEmail ?? "",
+                Address = dpoOrganisationAddress ?? "",
+                ZipCode = dpoOrganisationZipCode ?? "",
+                City = dpoOrganisationCity ?? "",
+                Country = dpoOrganisationCountry ?? "",
+                Phone = dpoOrganisationPhone ?? ""
+            };
+            _context.GdprDpoOrganisations.Add(dpoOrganisation);
+            await _context.SaveChangesAsync();
         }
 
         // Create or update GDPR register
@@ -373,21 +431,23 @@ public class CatalogServiceController : Controller
                     : new List<string>(),
                 HasProcessingAgreement = hasProcessingAgreement,
                 ProcessingAgreementReference = processingAgreementReference,
-                ProcessingAgreementDate = hasProcessingAgreement ? DateTime.UtcNow : null,
+                ProcessingAgreementDate = processingAgreementDate ?? (hasProcessingAgreement ? DateTime.UtcNow : null),
                 DataRetentionPeriod = dataRetentionDays.HasValue ? TimeSpan.FromDays(dataRetentionDays.Value) : null,
                 DataDeletionProcess = dataDeletionProcess,
                 SupportsDataPortability = supportsDataPortability,
                 SupportsDataDeletion = supportsDataDeletion,
                 SupportsDataCorrection = supportsDataCorrection,
                 DataProtectionOfficerContact = dataProtectionOfficerContact,
-                LastGdprAssessment = DateTime.UtcNow,
+                LastGdprAssessment = lastGdprAssessment ?? DateTime.UtcNow,
                 ComplianceNotes = complianceNotes,
                 DataTransfers = !string.IsNullOrEmpty(dataTransfers)
                     ? dataTransfers.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
                     : new List<string>(),
                 PurposesOfUse = !string.IsNullOrEmpty(purposesOfUse)
                     ? purposesOfUse.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
-                    : new List<string>()
+                    : new List<string>(),
+                Controller = controller,
+                DpoOrganisation = dpoOrganisation
             };
 
             _context.GdprRegisters.Add(gdprRegister);
@@ -410,13 +470,14 @@ public class CatalogServiceController : Controller
                 : new List<string>();
             catalogService.GdprRegister.HasProcessingAgreement = hasProcessingAgreement;
             catalogService.GdprRegister.ProcessingAgreementReference = processingAgreementReference;
+            catalogService.GdprRegister.ProcessingAgreementDate = processingAgreementDate ?? catalogService.GdprRegister.ProcessingAgreementDate;
             catalogService.GdprRegister.DataRetentionPeriod = dataRetentionDays.HasValue ? TimeSpan.FromDays(dataRetentionDays.Value) : null;
             catalogService.GdprRegister.DataDeletionProcess = dataDeletionProcess;
             catalogService.GdprRegister.SupportsDataPortability = supportsDataPortability;
             catalogService.GdprRegister.SupportsDataDeletion = supportsDataDeletion;
             catalogService.GdprRegister.SupportsDataCorrection = supportsDataCorrection;
             catalogService.GdprRegister.DataProtectionOfficerContact = dataProtectionOfficerContact;
-            catalogService.GdprRegister.LastGdprAssessment = DateTime.UtcNow;
+            catalogService.GdprRegister.LastGdprAssessment = lastGdprAssessment ?? DateTime.UtcNow;
             catalogService.GdprRegister.ComplianceNotes = complianceNotes;
             catalogService.GdprRegister.DataTransfers = !string.IsNullOrEmpty(dataTransfers)
                 ? dataTransfers.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
@@ -424,6 +485,50 @@ public class CatalogServiceController : Controller
             catalogService.GdprRegister.PurposesOfUse = !string.IsNullOrEmpty(purposesOfUse)
                 ? purposesOfUse.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
                 : new List<string>();
+
+            // Update or create controller
+            if (!string.IsNullOrEmpty(controllerName) && !string.IsNullOrEmpty(controllerEmail))
+            {
+                if (catalogService.GdprRegister.Controller == null)
+                {
+                    catalogService.GdprRegister.Controller = controller;
+                }
+                else
+                {
+                    catalogService.GdprRegister.Controller.Name = controllerName;
+                    catalogService.GdprRegister.Controller.Email = controllerEmail;
+                    catalogService.GdprRegister.Controller.Address = controllerAddress ?? "";
+                    catalogService.GdprRegister.Controller.ZipCode = controllerZipCode ?? "";
+                    catalogService.GdprRegister.Controller.City = controllerCity ?? "";
+                    catalogService.GdprRegister.Controller.Country = controllerCountry ?? "";
+                    catalogService.GdprRegister.Controller.Phone = controllerPhone ?? "";
+                }
+            }
+
+            // Update or create DPO organisation
+            if (hasExternalDpo && !string.IsNullOrEmpty(dpoOrganisationName))
+            {
+                if (catalogService.GdprRegister.DpoOrganisation == null)
+                {
+                    catalogService.GdprRegister.DpoOrganisation = dpoOrganisation;
+                }
+                else
+                {
+                    catalogService.GdprRegister.DpoOrganisation.Name = dpoOrganisationName;
+                    catalogService.GdprRegister.DpoOrganisation.Email = dpoOrganisationEmail ?? "";
+                    catalogService.GdprRegister.DpoOrganisation.Address = dpoOrganisationAddress ?? "";
+                    catalogService.GdprRegister.DpoOrganisation.ZipCode = dpoOrganisationZipCode ?? "";
+                    catalogService.GdprRegister.DpoOrganisation.City = dpoOrganisationCity ?? "";
+                    catalogService.GdprRegister.DpoOrganisation.Country = dpoOrganisationCountry ?? "";
+                    catalogService.GdprRegister.DpoOrganisation.Phone = dpoOrganisationPhone ?? "";
+                }
+            }
+            else if (!hasExternalDpo && catalogService.GdprRegister.DpoOrganisation != null)
+            {
+                // Remove DPO organisation if checkbox is unchecked
+                _context.GdprDpoOrganisations.Remove(catalogService.GdprRegister.DpoOrganisation);
+                catalogService.GdprRegister.DpoOrganisation = null;
+            }
         }
 
         await _context.SaveChangesAsync();

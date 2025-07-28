@@ -1088,7 +1088,7 @@
                                                 <label for="controllerName" class="form-label fw-bold">Controller Name <span class="text-danger">*</span></label>
                                                 <input type="text" name="controllerName" class="form-control" 
                                                        value="@Model.GdprRegister?.Controller?.Name"
-                                                       placeholder="e.g., Company Name" required>
+                                                       placeholder="e.g., Company Name" data-required="true">
                                                 <div class="form-text">Name of the data controller organization.</div>
                                             </div>
                                         </div>
@@ -1097,7 +1097,7 @@
                                                 <label for="controllerEmail" class="form-label fw-bold">Controller Email <span class="text-danger">*</span></label>
                                                 <input type="email" name="controllerEmail" class="form-control" 
                                                        value="@Model.GdprRegister?.Controller?.Email"
-                                                       placeholder="e.g., contact@company.com" required>
+                                                       placeholder="e.g., contact@company.com" data-required="true">
                                                 <div class="form-text">Email contact for the controller.</div>
                                             </div>
                                         </div>
@@ -1508,7 +1508,7 @@
             }
             
             function isTabComplete(tabContent) {
-                const requiredFields = tabContent.querySelectorAll('input[required], select[required]');
+                const requiredFields = tabContent.querySelectorAll('input[data-required="true"], select[data-required="true"], input[required], select[required]');
                 const checkboxGroups = tabContent.querySelectorAll('input[type="checkbox"][name$="Categories"], input[type="checkbox"][name$="Purposes"], input[type="checkbox"][name$="Measures"]');
                 
                 // Check required fields
@@ -1554,13 +1554,37 @@
                 const gdprForm = gdprModal.querySelector('form');
                 if (gdprForm) {
                     gdprForm.addEventListener('submit', function(e) {
-                        // Check for validation errors in hidden tabs
-                        const invalidFields = gdprForm.querySelectorAll(':invalid');
-                        if (invalidFields.length > 0) {
+                        // Custom validation for required fields
+                        const requiredFields = gdprForm.querySelectorAll('[data-required="true"]');
+                        let firstInvalidField = null;
+                        
+                        // Clear previous validation styles
+                        requiredFields.forEach(field => {
+                            field.classList.remove('is-invalid');
+                            const feedback = field.parentNode.querySelector('.invalid-feedback');
+                            if (feedback) feedback.remove();
+                        });
+                        
+                        // Check required fields
+                        for (let field of requiredFields) {
+                            if (!field.value.trim()) {
+                                field.classList.add('is-invalid');
+                                const feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                feedback.textContent = 'This field is required.';
+                                field.parentNode.appendChild(feedback);
+                                
+                                if (!firstInvalidField) {
+                                    firstInvalidField = field;
+                                }
+                            }
+                        }
+                        
+                        // Check for validation errors
+                        if (firstInvalidField) {
                             e.preventDefault();
                             
-                            // Find the first invalid field and switch to its tab
-                            const firstInvalidField = invalidFields[0];
+                            // Find the tab containing the invalid field and switch to it
                             const tabPane = firstInvalidField.closest('.tab-pane');
                             if (tabPane) {
                                 const tabId = tabPane.id;

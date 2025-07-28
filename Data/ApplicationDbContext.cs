@@ -20,6 +20,8 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<CostCenter> CostCenters { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<GdprDataRegister> GdprRegisters { get; set; }
+    public DbSet<GdprController> GdprControllers { get; set; }
+    public DbSet<GdprDpoOrganisation> GdprDpoOrganisations { get; set; }
     public DbSet<ServiceLifecycleInfo> ServiceLifecycles { get; set; }
     public DbSet<ServiceLifecycleStage> LifecycleStages { get; set; }
 
