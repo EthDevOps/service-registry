@@ -23,6 +23,17 @@ public class CatalogVendorController : Controller
                 .ThenInclude(p => p.CostCenter)
             .ToListAsync();
 
+        // Get service counts for each vendor
+        var vendorServiceCounts = new Dictionary<int, int>();
+        foreach (var vendor in vendors)
+        {
+            var serviceCount = await _context.Services
+                .CountAsync(s => s.Vendor.Id == vendor.Id);
+            vendorServiceCounts[vendor.Id] = serviceCount;
+        }
+        
+        ViewData["VendorServiceCounts"] = vendorServiceCounts;
+
         return View(vendors);
     }
 
@@ -208,7 +219,8 @@ public class CatalogVendorController : Controller
         }
 
         var vendor = await _context.Vendors
-            .Include(v => v.BillingInformation)
+            .Include(v => v.PaymentMethod)
+                .ThenInclude(p => p.CostCenter)
             .FirstOrDefaultAsync(m => m.Id == id);
             
         if (vendor == null)
@@ -274,27 +286,13 @@ public class CatalogVendorController : Controller
             return BadRequest("A vendor with this name already exists");
         }
 
-        // Create basic billing info
-        var costCenter = new CostCenter { Name = "Default" };
-        _context.CostCenters.Add(costCenter);
-        await _context.SaveChangesAsync();
-
-        var billingInfo = new BillingInformation
-        {
-            Type = BillingType.Free,
-            CostCenter = costCenter,
-            IsActive = true
-        };
-        _context.BillingInfo.Add(billingInfo);
-        await _context.SaveChangesAsync();
-
         var vendor = new CatalogVendor
         {
             Name = request.Name,
             WebsiteUrl = request.WebsiteUrl ?? "",
             Country = request.Country,
             City = request.City ?? "Unknown",
-            BillingInformation = billingInfo
+            IsActive = true
         };
 
         _context.Vendors.Add(vendor);
