@@ -1550,6 +1550,38 @@
                     field.addEventListener('input', calculateProgress);
                 });
                 
+                // Handle form submission and validation
+                const gdprForm = gdprModal.querySelector('form');
+                if (gdprForm) {
+                    gdprForm.addEventListener('submit', function(e) {
+                        // Check for validation errors in hidden tabs
+                        const invalidFields = gdprForm.querySelectorAll(':invalid');
+                        if (invalidFields.length > 0) {
+                            e.preventDefault();
+                            
+                            // Find the first invalid field and switch to its tab
+                            const firstInvalidField = invalidFields[0];
+                            const tabPane = firstInvalidField.closest('.tab-pane');
+                            if (tabPane) {
+                                const tabId = tabPane.id;
+                                const tabButton = document.querySelector(`button[data-bs-target="#${tabId}"]`);
+                                if (tabButton) {
+                                    // Switch to the tab containing the invalid field
+                                    const tab = new bootstrap.Tab(tabButton);
+                                    tab.show();
+                                    
+                                    // Focus the invalid field after tab switch
+                                    setTimeout(() => {
+                                        firstInvalidField.focus();
+                                        firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }, 150);
+                                }
+                            }
+                            return false;
+                        }
+                    });
+                }
+                
                 // Initial progress calculation
                 calculateProgress();
             }
