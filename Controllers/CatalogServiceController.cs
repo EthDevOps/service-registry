@@ -431,14 +431,14 @@ public class CatalogServiceController : Controller
                     : new List<string>(),
                 HasProcessingAgreement = hasProcessingAgreement,
                 ProcessingAgreementReference = processingAgreementReference,
-                ProcessingAgreementDate = processingAgreementDate ?? (hasProcessingAgreement ? DateTime.UtcNow : null),
+                ProcessingAgreementDate = processingAgreementDate?.ToUniversalTime() ?? (hasProcessingAgreement ? DateTime.UtcNow : null),
                 DataRetentionPeriod = dataRetentionDays.HasValue ? TimeSpan.FromDays(dataRetentionDays.Value) : null,
                 DataDeletionProcess = dataDeletionProcess,
                 SupportsDataPortability = supportsDataPortability,
                 SupportsDataDeletion = supportsDataDeletion,
                 SupportsDataCorrection = supportsDataCorrection,
                 DataProtectionOfficerContact = dataProtectionOfficerContact,
-                LastGdprAssessment = lastGdprAssessment ?? DateTime.UtcNow,
+                LastGdprAssessment = lastGdprAssessment?.ToUniversalTime() ?? DateTime.UtcNow,
                 ComplianceNotes = complianceNotes,
                 DataTransfers = !string.IsNullOrEmpty(dataTransfers)
                     ? dataTransfers.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
@@ -470,14 +470,14 @@ public class CatalogServiceController : Controller
                 : new List<string>();
             catalogService.GdprRegister.HasProcessingAgreement = hasProcessingAgreement;
             catalogService.GdprRegister.ProcessingAgreementReference = processingAgreementReference;
-            catalogService.GdprRegister.ProcessingAgreementDate = processingAgreementDate ?? catalogService.GdprRegister.ProcessingAgreementDate;
+            catalogService.GdprRegister.ProcessingAgreementDate = processingAgreementDate?.ToUniversalTime() ?? catalogService.GdprRegister.ProcessingAgreementDate;
             catalogService.GdprRegister.DataRetentionPeriod = dataRetentionDays.HasValue ? TimeSpan.FromDays(dataRetentionDays.Value) : null;
             catalogService.GdprRegister.DataDeletionProcess = dataDeletionProcess;
             catalogService.GdprRegister.SupportsDataPortability = supportsDataPortability;
             catalogService.GdprRegister.SupportsDataDeletion = supportsDataDeletion;
             catalogService.GdprRegister.SupportsDataCorrection = supportsDataCorrection;
             catalogService.GdprRegister.DataProtectionOfficerContact = dataProtectionOfficerContact;
-            catalogService.GdprRegister.LastGdprAssessment = lastGdprAssessment ?? DateTime.UtcNow;
+            catalogService.GdprRegister.LastGdprAssessment = lastGdprAssessment?.ToUniversalTime() ?? DateTime.UtcNow;
             catalogService.GdprRegister.ComplianceNotes = complianceNotes;
             catalogService.GdprRegister.DataTransfers = !string.IsNullOrEmpty(dataTransfers)
                 ? dataTransfers.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
