@@ -50,6 +50,10 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            
+            // Ensure database is created and migrations are applied
+            context.Database.Migrate();
+            
             SeedData.SeedLicenses(context);
         }
 

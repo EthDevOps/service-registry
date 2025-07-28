@@ -56,8 +56,6 @@ public class VendorBillingViewModel
             WebsiteUrl = vendor.WebsiteUrl,
             Country = vendor.Country,
             City = vendor.City,
-            GdprProcessingAgreementExists = vendor.GdprProcessingAgreementExists,
-            ProcessingAgreementLink = vendor.ProcessingAgreementLink,
             BillingInformationId = vendor.BillingInformationId
         };
 
@@ -97,8 +95,6 @@ public class VendorBillingViewModel
         vendor.WebsiteUrl = WebsiteUrl;
         vendor.Country = Country;
         vendor.City = City;
-        vendor.GdprProcessingAgreementExists = GdprProcessingAgreementExists;
-        vendor.ProcessingAgreementLink = ProcessingAgreementLink;
     }
 
     public void UpdateBillingInformation(BillingInformation billing, CostCenter costCenter)

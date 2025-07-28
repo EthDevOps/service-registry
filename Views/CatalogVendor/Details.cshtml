@@ -160,62 +160,6 @@
                         </div>
                     }
 
-                    <!-- GDPR Information -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-shield-alt"></i> GDPR Compliance
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <dl class="row">
-                                <dt class="col-sm-3">Processing Agreement:</dt>
-                                <dd class="col-sm-9">
-                                    @if (Model.GdprProcessingAgreementExists)
-                                    {
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-check"></i> Agreement Exists
-                                        </span>
-                                        @if (!string.IsNullOrEmpty(Model.ProcessingAgreementLink))
-                                        {
-                                            <a href="@Model.ProcessingAgreementLink" target="_blank" class="btn btn-outline-info btn-sm ms-2">
-                                                <i class="fas fa-file-contract"></i> View Agreement
-                                            </a>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">
-                                            <i class="fas fa-exclamation-triangle"></i> No Agreement
-                                        </span>
-                                    }
-                                </dd>
-                                
-                                @if (!string.IsNullOrEmpty(Model.ProcessingAgreementLink))
-                                {
-                                    <dt class="col-sm-3">Agreement Link:</dt>
-                                    <dd class="col-sm-9">
-                                        <a href="@Model.ProcessingAgreementLink" target="_blank">
-                                            @Model.ProcessingAgreementLink
-                                        </a>
-                                    </dd>
-                                }
-                            </dl>
-                            
-                            @if (!Model.GdprProcessingAgreementExists)
-                            {
-                                <div class="alert alert-warning">
-                                    <h6 class="alert-heading">
-                                        <i class="fas fa-exclamation-triangle"></i> GDPR Compliance Warning
-                                    </h6>
-                                    <p class="mb-0">
-                                        This vendor does not have a GDPR processing agreement on file. 
-                                        This may be required for EU data processing compliance.
-                                    </p>
-                                </div>
-                            }
-                        </div>
-                    </div>
 
                     <!-- Services Using This Vendor -->
                     @if (services.Any())
@@ -304,17 +248,6 @@
                                 <span class="h4">@services.Count</span>
                             </div>
                             
-                            <div class="mb-3">
-                                <small class="text-muted">GDPR Compliance</small><br>
-                                @if (Model.GdprProcessingAgreementExists)
-                                {
-                                    <span class="badge bg-success">Compliant</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning">Needs Review</span>
-                                }
-                            </div>
                             
                             <div class="mb-3">
                                 <small class="text-muted">Billing Status</small><br>
@@ -366,15 +299,6 @@
                                 </div>
                             }
                             
-                            @if (Model.GdprProcessingAgreementExists && !string.IsNullOrEmpty(Model.ProcessingAgreementLink))
-                            {
-                                <div class="mb-3">
-                                    <small class="text-muted">GDPR Agreement</small><br>
-                                    <a href="@Model.ProcessingAgreementLink" target="_blank" class="btn btn-outline-success btn-sm">
-                                        <i class="fas fa-file-contract"></i> View Agreement
-                                    </a>
-                                </div>
-                            }
                         </div>
                     </div>
 

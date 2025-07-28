@@ -109,38 +109,6 @@
                             </div>
                         </div>
 
-                        <!-- GDPR Information -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-shield-alt"></i> GDPR Compliance
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-check mb-3">
-                                    <input asp-for="GdprProcessingAgreementExists" class="form-check-input" />
-                                    <label asp-for="GdprProcessingAgreementExists" class="form-check-label">
-                                        GDPR Processing Agreement Exists
-                                    </label>
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label asp-for="ProcessingAgreementLink" class="form-label"></label>
-                                    <input asp-for="ProcessingAgreementLink" class="form-control" placeholder="https://example.com/gdpr-agreement" />
-                                    <span asp-validation-for="ProcessingAgreementLink" class="text-danger"></span>
-                                    <div class="form-text">Link to the GDPR processing agreement document</div>
-                                </div>
-
-                                @if (Model.GdprProcessingAgreementExists && !string.IsNullOrEmpty(Model.ProcessingAgreementLink))
-                                {
-                                    <div class="mt-2">
-                                        <a href="@Model.ProcessingAgreementLink" target="_blank" class="btn btn-outline-success btn-sm">
-                                            <i class="fas fa-file-contract"></i> View Current Agreement
-                                        </a>
-                                    </div>
-                                }
-                            </div>
-                        </div>
 
                         <!-- Services Using This Vendor -->
                         <div class="card mb-4">
@@ -225,20 +193,6 @@
         $(document).ready(function() {
             // Add any edit-specific JavaScript here
             
-            // Enable/disable GDPR link based on checkbox
-            $('#GdprProcessingAgreementExists').change(function() {
-                var linkInput = $('#ProcessingAgreementLink');
-                if ($(this).is(':checked')) {
-                    linkInput.prop('disabled', false);
-                    linkInput.closest('.form-group').show();
-                } else {
-                    linkInput.prop('disabled', true);
-                    linkInput.val('');
-                }
-            });
-
-            // Trigger the change event on page load
-            $('#GdprProcessingAgreementExists').trigger('change');
         });
     </script>
 }

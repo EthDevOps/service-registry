@@ -60,7 +60,6 @@ public class ApplicationDbContext : IdentityDbContext
             entity.Property(e => e.Country).HasMaxLength(100);
             entity.Property(e => e.City).HasMaxLength(100);
             entity.HasOne(e => e.BillingInformation).WithMany().HasForeignKey(e => e.BillingInformationId);
-            entity.Property(e => e.ProcessingAgreementLink).HasMaxLength(500);
         });
 
         // Configure ServiceSubscription

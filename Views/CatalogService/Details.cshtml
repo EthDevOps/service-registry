@@ -4,6 +4,110 @@
     ViewData["Title"] = "Service Details";
 }
 
+@functions {
+    string GetDataCategoryLabel(DataCategory category)
+    {
+        return category switch
+        {
+            DataCategory.PersonalData => "Personal Data",
+            DataCategory.ConfidentialInformation => "Confidential Information",
+            DataCategory.SensitiveData => "Sensitive Data",
+            DataCategory.PublicData => "Public Data",
+            _ => category.ToString()
+        };
+    }
+
+    string GetProcessingPurposeLabel(ProcessingPurpose purpose)
+    {
+        return purpose switch
+        {
+            ProcessingPurpose.HumanResources => "Human Resources",
+            ProcessingPurpose.Payroll => "Payroll",
+            ProcessingPurpose.Authentication => "Authentication",
+            ProcessingPurpose.Communication => "Communication",
+            ProcessingPurpose.ProjectManagement => "Project Management",
+            ProcessingPurpose.CustomerSupport => "Customer Support",
+            ProcessingPurpose.Marketing => "Marketing",
+            ProcessingPurpose.Analytics => "Analytics",
+            ProcessingPurpose.Compliance => "Compliance",
+            ProcessingPurpose.BackupAndRecovery => "Backup and Recovery",
+            ProcessingPurpose.SystemAdministration => "System Administration",
+            _ => purpose.ToString()
+        };
+    }
+
+    string GetProcessingFrequencyLabel(ProcessingFrequency frequency)
+    {
+        return frequency switch
+        {
+            ProcessingFrequency.Continuous => "Continuous",
+            ProcessingFrequency.Daily => "Daily",
+            ProcessingFrequency.Weekly => "Weekly",
+            ProcessingFrequency.Monthly => "Monthly",
+            ProcessingFrequency.Quarterly => "Quarterly",
+            ProcessingFrequency.Annually => "Annually",
+            ProcessingFrequency.AdHoc => "Ad Hoc",
+            ProcessingFrequency.OnDemand => "On Demand",
+            _ => frequency.ToString()
+        };
+    }
+
+    string GetSecurityMeasureLabel(SecurityMeasure measure)
+    {
+        return measure switch
+        {
+            SecurityMeasure.Encryption => "Encryption",
+            SecurityMeasure.AccessControl => "Access Control",
+            SecurityMeasure.TwoFactorAuthentication => "Two-Factor Authentication",
+            SecurityMeasure.SingleSignOn => "Single Sign-On",
+            SecurityMeasure.DataBackup => "Data Backup",
+            SecurityMeasure.AuditLogging => "Audit Logging",
+            SecurityMeasure.NetworkSecurity => "Network Security",
+            SecurityMeasure.DataMinimization => "Data Minimization",
+            SecurityMeasure.Pseudonymization => "Pseudonymization",
+            SecurityMeasure.Anonymization => "Anonymization",
+            _ => measure.ToString()
+        };
+    }
+
+    string GetHostingTypeLabel(CatalogHostingType hostingType)
+    {
+        return hostingType switch
+        {
+            CatalogHostingType.SaaS => "Software as a Service (SaaS)",
+            CatalogHostingType.SelfHosted => "Self-Hosted",
+            _ => hostingType.ToString()
+        };
+    }
+
+    string GetLifecycleStageLabel(ServiceLifecycleStageType? stageType)
+    {
+        if (!stageType.HasValue) return "Unknown";
+        
+        return stageType.Value switch
+        {
+            ServiceLifecycleStageType.ProofOfConcept => "Proof of Concept",
+            ServiceLifecycleStageType.OrganizationWideTrial => "Organization-Wide Trial",
+            ServiceLifecycleStageType.Production => "Production",
+            ServiceLifecycleStageType.Deprecated => "Deprecated",
+            ServiceLifecycleStageType.Decommissioned => "Decommissioned",
+            _ => stageType.ToString()
+        };
+    }
+
+    string GetLifecycleStageStatusLabel(ServiceLifecycleStageStatus status)
+    {
+        return status switch
+        {
+            ServiceLifecycleStageStatus.InProgress => "In Progress",
+            ServiceLifecycleStageStatus.Completed => "Completed",
+            ServiceLifecycleStageStatus.Cancelled => "Cancelled",
+            ServiceLifecycleStageStatus.OnHold => "On Hold",
+            _ => status.ToString()
+        };
+    }
+}
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -99,27 +203,6 @@
                                                 <dd class="col-sm-8">@Model.Vendor.City, @Model.Vendor.Country</dd>
                                             }
                                             
-                                            <dt class="col-sm-4">GDPR Agreement:</dt>
-                                            <dd class="col-sm-8">
-                                                @if (Model.Vendor.GdprProcessingAgreementExists)
-                                                {
-                                                    <span class="badge bg-success">
-                                                        <i class="fas fa-check"></i> Agreement Exists
-                                                    </span>
-                                                    @if (!string.IsNullOrEmpty(Model.Vendor.ProcessingAgreementLink))
-                                                    {
-                                                        <a href="@Model.Vendor.ProcessingAgreementLink" target="_blank" class="btn btn-outline-info btn-sm ms-2">
-                                                            <i class="fas fa-file-contract"></i> View Agreement
-                                                        </a>
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-danger">
-                                                        <i class="fas fa-exclamation-triangle"></i> No Agreement
-                                                    </span>
-                                                }
-                                            </dd>
                                         </dl>
                                     </div>
                                 </div>
@@ -167,7 +250,7 @@
                                 <dt class="col-sm-3">Hosting Type:</dt>
                                 <dd class="col-sm-9">
                                     <span class="badge @(Model.HostingType == CatalogHostingType.SaaS ? "bg-success" : "bg-warning")">
-                                        @Model.HostingType
+                                        @GetHostingTypeLabel(Model.HostingType)
                                     </span>
                                 </dd>
                                 
@@ -274,7 +357,7 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <small class="text-muted">Current Lifecycle Stage</small><br>
-                                <span class="badge bg-primary">@Model.Lifecycle?.CurrentStage</span>
+                                <span class="badge bg-primary">@GetLifecycleStageLabel(Model.Lifecycle?.CurrentStage)</span>
                             </div>
                             
                             @if (Model.Subscription != null)
@@ -293,7 +376,7 @@
                             <div class="mb-3">
                                 <small class="text-muted">Hosting Location</small><br>
                                 <span class="badge @(Model.HostingType == CatalogHostingType.SaaS ? "bg-success" : "bg-warning")">
-                                    @Model.HostingType
+                                    @GetHostingTypeLabel(Model.HostingType)
                                 </span>
                                 <br>
                                 <small class="text-muted mt-1">
@@ -335,9 +418,9 @@
                                         <div class="mb-3">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <span class="badge @(stage.Status == ServiceLifecycleStageStatus.Completed ? "bg-success" : stage.Status == ServiceLifecycleStageStatus.InProgress ? "bg-primary" : "bg-secondary")">
-                                                    @stage.StageType
+                                                    @GetLifecycleStageLabel(stage.StageType)
                                                 </span>
-                                                <small class="text-muted">@stage.Status</small>
+                                                <small class="text-muted">@GetLifecycleStageStatusLabel(stage.Status)</small>
                                             </div>
                                             @if (stage.StartDate.HasValue)
                                             {
@@ -383,7 +466,7 @@
                                             {
                                                 @foreach (var category in Model.GdprRegister.DataCategories)
                                                 {
-                                                    <span class="badge bg-info me-1">@category</span>
+                                                    <span class="badge bg-info me-1">@GetDataCategoryLabel(category)</span>
                                                 }
                                             }
                                             else
@@ -394,7 +477,7 @@
                                         
                                         <div class="mb-3">
                                             <small class="text-muted">Processing Frequency</small><br>
-                                            <span class="badge bg-warning">@Model.GdprRegister.ProcessingFrequency</span>
+                                            <span class="badge bg-warning">@GetProcessingFrequencyLabel(Model.GdprRegister.ProcessingFrequency)</span>
                                         </div>
                                         
                                         <div class="mb-3">
@@ -403,7 +486,7 @@
                                             {
                                                 @foreach (var measure in Model.GdprRegister.SecurityMeasures)
                                                 {
-                                                    <span class="badge bg-secondary me-1">@measure</span>
+                                                    <span class="badge bg-secondary me-1">@GetSecurityMeasureLabel(measure)</span>
                                                 }
                                             }
                                             else
@@ -502,7 +585,7 @@
                             {
                                 @if (Model.Lifecycle?.Stages?.Any(s => s.StageType == stageType) != true)
                                 {
-                                    <option value="@stageType">@stageType</option>
+                                    <option value="@stageType">@GetLifecycleStageLabel(stageType)</option>
                                 }
                             }
                         </select>
@@ -538,23 +621,100 @@
 
 <!-- GDPR Compliance Modal -->
 <div class="modal fade" id="gdprModal" tabindex="-1" aria-labelledby="gdprModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <form asp-action="SetGdprCompliance" method="post">
                 <input type="hidden" name="serviceId" value="@Model.Id" />
-                <div class="modal-header">
-                    <h5 class="modal-title" id="gdprModalLabel">@(Model.GdprRegister != null ? "Update" : "Set") GDPR Compliance</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Section 1: Data Classification -->
-                    <div class="card border-light mb-4">
-                        <div class="card-header bg-light">
-                            <h6 class="card-title mb-0">
-                                <i class="fas fa-database text-primary"></i> Data Classification & Processing
-                            </h6>
+                <div class="modal-header bg-primary text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        <div>
+                            <h5 class="modal-title mb-0" id="gdprModalLabel">GDPR Compliance Assessment</h5>
+                            <small class="opacity-75">Article 28 Data Processing Agreement</small>
                         </div>
-                        <div class="card-body">
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="modal-header border-0 pb-0">
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-muted">Completion Progress</span>
+                            <span class="small text-muted"><span id="completionPercentage">0</span>% Complete</span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-body p-0">
+                    <!-- Navigation Tabs -->
+                    <ul class="nav nav-pills nav-justified p-3 bg-light border-bottom" id="gdprTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active position-relative" id="basics-tab" data-bs-toggle="pill" data-bs-target="#basics" type="button" role="tab">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <span class="d-none d-md-inline">Basics</span>
+                                <span class="badge bg-success rounded-pill position-absolute top-0 start-100 translate-middle" id="basics-badge" style="display: none;">✓</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link position-relative" id="stakeholders-tab" data-bs-toggle="pill" data-bs-target="#stakeholders" type="button" role="tab">
+                                <i class="fas fa-users me-1"></i>
+                                <span class="d-none d-md-inline">Stakeholders</span>
+                                <span class="badge bg-success rounded-pill position-absolute top-0 start-100 translate-middle" id="stakeholders-badge" style="display: none;">✓</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link position-relative" id="processing-tab" data-bs-toggle="pill" data-bs-target="#processing" type="button" role="tab">
+                                <i class="fas fa-cogs me-1"></i>
+                                <span class="d-none d-md-inline">Processing</span>
+                                <span class="badge bg-success rounded-pill position-absolute top-0 start-100 translate-middle" id="processing-badge" style="display: none;">✓</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link position-relative" id="security-tab" data-bs-toggle="pill" data-bs-target="#security" type="button" role="tab">
+                                <i class="fas fa-lock me-1"></i>
+                                <span class="d-none d-md-inline">Security</span>
+                                <span class="badge bg-success rounded-pill position-absolute top-0 start-100 translate-middle" id="security-badge" style="display: none;">✓</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link position-relative" id="rights-tab" data-bs-toggle="pill" data-bs-target="#rights" type="button" role="tab">
+                                <i class="fas fa-balance-scale me-1"></i>
+                                <span class="d-none d-md-inline">Rights</span>
+                                <span class="badge bg-success rounded-pill position-absolute top-0 start-100 translate-middle" id="rights-badge" style="display: none;">✓</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link position-relative" id="compliance-tab" data-bs-toggle="pill" data-bs-target="#compliance" type="button" role="tab">
+                                <i class="fas fa-file-contract me-1"></i>
+                                <span class="d-none d-md-inline">Compliance</span>
+                                <span class="badge bg-success rounded-pill position-absolute top-0 start-100 translate-middle" id="compliance-badge" style="display: none;">✓</span>
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content p-4" id="gdprTabContent" style="max-height: 70vh; overflow-y: auto;">
+                        
+                        <!-- Basics Tab -->
+                        <div class="tab-pane fade show active" id="basics" role="tabpanel">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-info border-0">
+                                        <div class="d-flex">
+                                            <i class="fas fa-info-circle text-info me-3 mt-1"></i>
+                                            <div>
+                                                <h6 class="alert-heading mb-1">Data Classification & Processing Overview</h6>
+                                                <p class="mb-0 small">Define what types of personal data this service processes and for what purposes. This forms the foundation of your GDPR compliance.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <!-- Data Categories -->
@@ -566,7 +726,7 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="dataCategories" value="@category" id="category_@category"
                                                            @(Model.GdprRegister?.DataCategories?.Contains(category) == true ? "checked" : "") />
-                                                    <label class="form-check-label" for="category_@category">@category</label>
+                                                    <label class="form-check-label" for="category_@category">@GetDataCategoryLabel(category)</label>
                                                 </div>
                                             }
                                         </div>
@@ -581,7 +741,7 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="processingPurposes" value="@purpose" id="purpose_@purpose"
                                                            @(Model.GdprRegister?.ProcessingPurposes?.Contains(purpose) == true ? "checked" : "") />
-                                                    <label class="form-check-label" for="purpose_@purpose">@purpose</label>
+                                                    <label class="form-check-label" for="purpose_@purpose">@GetProcessingPurposeLabel(purpose)</label>
                                                 </div>
                                             }
                                         </div>
@@ -598,11 +758,11 @@
                                             {
                                                 @if (Model.GdprRegister?.ProcessingFrequency == frequency)
                                                 {
-                                                    <option value="@frequency" selected>@frequency</option>
+                                                    <option value="@frequency" selected>@GetProcessingFrequencyLabel(frequency)</option>
                                                 }
                                                 else
                                                 {
-                                                    <option value="@frequency">@frequency</option>
+                                                    <option value="@frequency">@GetProcessingFrequencyLabel(frequency)</option>
                                                 }
                                             }
                                         </select>
@@ -641,126 +801,392 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Section 2: Security & Compliance -->
-                    <div class="card border-light mb-4">
-                        <div class="card-header bg-light">
-                            <h6 class="card-title mb-0">
-                                <i class="fas fa-shield-alt text-success"></i> Security Measures & Compliance
-                            </h6>
-                        </div>
-                        <div class="card-body">
+                        <!-- Stakeholders Tab -->
+                        <div class="tab-pane fade" id="stakeholders" role="tabpanel">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <!-- Security Measures -->
+                                <div class="col-12">
+                                    <div class="alert alert-info border-0">
+                                        <div class="d-flex">
+                                            <i class="fas fa-users text-info me-3 mt-1"></i>
+                                            <div>
+                                                <h6 class="alert-heading mb-1">Controller & DPO Information</h6>
+                                                <p class="mb-0 small">Define the data controller and Data Protection Officer responsible for this service according to GDPR Article 28.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Controller Information -->
+                            <div class="card border-light mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-building text-primary"></i> Controller Information
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="controllerName" class="form-label fw-bold">Controller Name <span class="text-danger">*</span></label>
+                                                <input type="text" name="controllerName" class="form-control" 
+                                                       value="@Model.GdprRegister?.Controller?.Name"
+                                                       placeholder="e.g., Company Name" required>
+                                                <div class="form-text">Name of the data controller organization.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="controllerEmail" class="form-label fw-bold">Controller Email <span class="text-danger">*</span></label>
+                                                <input type="email" name="controllerEmail" class="form-control" 
+                                                       value="@Model.GdprRegister?.Controller?.Email"
+                                                       placeholder="e.g., contact@company.com" required>
+                                                <div class="form-text">Email contact for the controller.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="mb-3">
+                                                <label for="controllerAddress" class="form-label fw-bold">Controller Address</label>
+                                                <input type="text" name="controllerAddress" class="form-control" 
+                                                       value="@Model.GdprRegister?.Controller?.Address"
+                                                       placeholder="e.g., 123 Main Street">
+                                                <div class="form-text">Physical address of the controller.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="controllerZipCode" class="form-label fw-bold">ZIP Code</label>
+                                                <input type="text" name="controllerZipCode" class="form-control" 
+                                                       value="@Model.GdprRegister?.Controller?.ZipCode"
+                                                       placeholder="12345">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="controllerCity" class="form-label fw-bold">City</label>
+                                                <input type="text" name="controllerCity" class="form-control" 
+                                                       value="@Model.GdprRegister?.Controller?.City"
+                                                       placeholder="e.g., New York">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="controllerCountry" class="form-label fw-bold">Country</label>
+                                                <input type="text" name="controllerCountry" class="form-control" 
+                                                       value="@Model.GdprRegister?.Controller?.Country"
+                                                       placeholder="e.g., USA">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="mb-3">
+                                                <label for="controllerPhone" class="form-label fw-bold">Phone</label>
+                                                <input type="tel" name="controllerPhone" class="form-control" 
+                                                       value="@Model.GdprRegister?.Controller?.Phone"
+                                                       placeholder="+1234567890">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DPO Organisation Information -->
+                            <div class="card border-light">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-user-shield text-info"></i> Data Protection Officer
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-3">
+                                        <input type="checkbox" name="hasExternalDpo" class="form-check-input" id="hasExternalDpo"
+                                               @(Model.GdprRegister?.DpoOrganisation != null ? "checked" : "")>
+                                        <label for="hasExternalDpo" class="form-check-label fw-bold">
+                                            Has External DPO Organisation
+                                        </label>
+                                        <div class="form-text">Check if using an external Data Protection Officer organization.</div>
+                                    </div>
+                                    
+                                    <div id="dpoFields" style="@(Model.GdprRegister?.DpoOrganisation != null ? "" : "display: none;")">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="dpoOrganisationName" class="form-label fw-bold">DPO Organisation Name</label>
+                                                    <input type="text" name="dpoOrganisationName" class="form-control" 
+                                                           value="@Model.GdprRegister?.DpoOrganisation?.Name"
+                                                           placeholder="e.g., DPO Services Ltd">
+                                                    <div class="form-text">Name of the external DPO organization.</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="dpoOrganisationEmail" class="form-label fw-bold">DPO Organisation Email</label>
+                                                    <input type="email" name="dpoOrganisationEmail" class="form-control" 
+                                                           value="@Model.GdprRegister?.DpoOrganisation?.Email"
+                                                           placeholder="e.g., dpo@dposervices.com">
+                                                    <div class="form-text">Email contact for the DPO organization.</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Processing Tab -->
+                        <div class="tab-pane fade" id="processing" role="tabpanel">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-info border-0">
+                                        <div class="d-flex">
+                                            <i class="fas fa-cogs text-info me-3 mt-1"></i>
+                                            <div>
+                                                <h6 class="alert-heading mb-1">Data Processing Activities</h6>
+                                                <p class="mb-0 small">Define how personal data is processed, retained, and transferred according to GDPR Article 28.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Processing Agreement -->
+                            <div class="card border-light mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-file-contract text-primary"></i> Processing Agreement
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="hasProcessingAgreement" value="true" id="processingAgreement"
+                                               @(Model.GdprRegister?.HasProcessingAgreement == true ? "checked" : "") />
+                                        <label class="form-check-label fw-bold" for="processingAgreement">Has Processing Agreement</label>
+                                        <div class="form-text">Article 28(3) requires a written processing agreement.</div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="processingAgreementDate" class="form-label fw-bold">Agreement Date</label>
+                                                <input type="date" name="processingAgreementDate" class="form-control" 
+                                                       value="@Model.GdprRegister?.ProcessingAgreementDate?.ToString("yyyy-MM-dd")">
+                                                <div class="form-text">Date when the processing agreement was signed.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="processingAgreementReference" class="form-label fw-bold">Agreement Reference</label>
+                                                <input type="text" name="processingAgreementReference" class="form-control" 
+                                                       value="@Model.GdprRegister?.ProcessingAgreementReference"
+                                                       placeholder="e.g., Agreement #2024-001">
+                                                <div class="form-text">Reference number or identifier for the agreement.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Data Retention -->
+                            <div class="card border-light">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-clock text-warning"></i> Data Retention & Deletion
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="dataRetentionDays" class="form-label fw-bold">Data Retention Period</label>
+                                                <div class="input-group">
+                                                    <input type="number" name="dataRetentionDays" class="form-control" 
+                                                           value="@(Model.GdprRegister?.DataRetentionPeriod?.Days)"
+                                                           placeholder="365">
+                                                    <span class="input-group-text">days</span>
+                                                </div>
+                                                <div class="form-text">Maximum period to retain personal data.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="dataDeletionProcess" class="form-label fw-bold">Data Deletion Process</label>
+                                                <input type="text" name="dataDeletionProcess" class="form-control" 
+                                                       value="@Model.GdprRegister?.DataDeletionProcess"
+                                                       placeholder="e.g., Automated deletion after retention period">
+                                                <div class="form-text">Description of how data is deleted.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Tab -->
+                        <div class="tab-pane fade" id="security" role="tabpanel">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-info border-0">
+                                        <div class="d-flex">
+                                            <i class="fas fa-lock text-info me-3 mt-1"></i>
+                                            <div>
+                                                <h6 class="alert-heading mb-1">Security Measures & Safeguards</h6>
+                                                <p class="mb-0 small">Document technical and organizational measures to ensure data security as required by GDPR Article 28.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Security Measures Card -->
+                            <div class="card border-light">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-shield-alt text-success"></i> Security Measures
+                                    </h6>
+                                </div>
+                                <div class="card-body">
                                     <div class="mb-4">
-                                        <label class="form-label fw-bold">Security Measures</label>
-                                        <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                                        <label class="form-label fw-bold">Technical & Organizational Measures <span class="text-danger">*</span></label>
+                                        <div class="border rounded p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
                                             @foreach (var measure in Enum.GetValues<SecurityMeasure>())
                                             {
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="securityMeasures" value="@measure" id="measure_@measure"
                                                            @(Model.GdprRegister?.SecurityMeasures?.Contains(measure) == true ? "checked" : "") />
-                                                    <label class="form-check-label" for="measure_@measure">@measure</label>
+                                                    <label class="form-check-label" for="measure_@measure">@GetSecurityMeasureLabel(measure)</label>
                                                 </div>
                                             }
                                         </div>
+                                        <div class="form-text">Select all security measures implemented for this service.</div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Processing Agreement -->
-                                    <div class="mb-4">
-                                        <label class="form-label fw-bold">Processing Agreement</label>
-                                        <div class="border rounded p-3 bg-light">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="hasProcessingAgreement" value="true" id="processingAgreement"
-                                                       @(Model.GdprRegister?.HasProcessingAgreement == true ? "checked" : "") />
-                                                <label class="form-check-label" for="processingAgreement">Has Processing Agreement</label>
+                        <!-- Rights Tab -->
+                        <div class="tab-pane fade" id="rights" role="tabpanel">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-info border-0">
+                                        <div class="d-flex">
+                                            <i class="fas fa-balance-scale text-info me-3 mt-1"></i>
+                                            <div>
+                                                <h6 class="alert-heading mb-1">Data Subject Rights</h6>
+                                                <p class="mb-0 small">Configure support for data subject rights as required by GDPR Articles 15-22.</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="col-md-6">
-                                    <!-- Data Retention -->
+                            <!-- Data Subject Rights Card -->
+                            <div class="card border-light">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-user-check text-primary"></i> Rights Support
+                                    </h6>
+                                </div>
+                                <div class="card-body">
                                     <div class="mb-4">
-                                        <label for="dataRetentionDays" class="form-label fw-bold">Data Retention Period</label>
-                                        <div class="input-group">
-                                            <input type="number" name="dataRetentionDays" class="form-control" 
-                                                   value="@(Model.GdprRegister?.DataRetentionPeriod?.Days)"
-                                                   placeholder="365">
-                                            <span class="input-group-text">days</span>
-                                        </div>
-                                        <div class="form-text">Maximum period to retain personal data.</div>
-                                    </div>
-
-                                    <!-- Data Subject Rights -->
-                                    <div class="mb-4">
-                                        <label class="form-label fw-bold">Data Subject Rights Support</label>
+                                        <label class="form-label fw-bold">Supported Data Subject Rights</label>
                                         <div class="border rounded p-3 bg-light">
-                                            <div class="form-check">
+                                            <div class="form-check mb-2">
                                                 <input class="form-check-input" type="checkbox" name="supportsDataPortability" value="true" id="dataPortability"
                                                        @(Model.GdprRegister?.SupportsDataPortability == true ? "checked" : "") />
-                                                <label class="form-check-label" for="dataPortability">Data Portability</label>
+                                                <label class="form-check-label" for="dataPortability">
+                                                    <strong>Data Portability</strong> <small class="text-muted">(Article 20)</small>
+                                                </label>
+                                                <div class="form-text">Right to receive personal data in a structured format.</div>
                                             </div>
-                                            <div class="form-check">
+                                            <div class="form-check mb-2">
                                                 <input class="form-check-input" type="checkbox" name="supportsDataDeletion" value="true" id="dataDeletion"
                                                        @(Model.GdprRegister?.SupportsDataDeletion == true ? "checked" : "") />
-                                                <label class="form-check-label" for="dataDeletion">Data Deletion (Right to be Forgotten)</label>
+                                                <label class="form-check-label" for="dataDeletion">
+                                                    <strong>Data Deletion</strong> <small class="text-muted">(Article 17 - Right to be Forgotten)</small>
+                                                </label>
+                                                <div class="form-text">Right to erasure of personal data.</div>
                                             </div>
-                                            <div class="form-check">
+                                            <div class="form-check mb-2">
                                                 <input class="form-check-input" type="checkbox" name="supportsDataCorrection" value="true" id="dataCorrection"
                                                        @(Model.GdprRegister?.SupportsDataCorrection == true ? "checked" : "") />
-                                                <label class="form-check-label" for="dataCorrection">Data Correction</label>
+                                                <label class="form-check-label" for="dataCorrection">
+                                                    <strong>Data Correction</strong> <small class="text-muted">(Article 16 - Right to Rectification)</small>
+                                                </label>
+                                                <div class="form-text">Right to rectification of inaccurate personal data.</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Section 3: Contact & Documentation -->
-                    <div class="card border-light mb-4">
-                        <div class="card-header bg-light">
-                            <h6 class="card-title mb-0">
-                                <i class="fas fa-file-contract text-info"></i> Contact Information & Documentation
-                            </h6>
-                        </div>
-                        <div class="card-body">
+                        <!-- Compliance Tab -->
+                        <div class="tab-pane fade" id="compliance" role="tabpanel">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="dataProtectionOfficerContact" class="form-label fw-bold">Data Protection Officer Contact</label>
-                                        <input type="text" name="dataProtectionOfficerContact" class="form-control" 
-                                               value="@Model.GdprRegister?.DataProtectionOfficerContact"
-                                               placeholder="e.g., dpo@company.com">
-                                        <div class="form-text">Email or contact information for DPO.</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="processingAgreementReference" class="form-label fw-bold">Processing Agreement Reference</label>
-                                        <input type="text" name="processingAgreementReference" class="form-control" 
-                                               value="@Model.GdprRegister?.ProcessingAgreementReference"
-                                               placeholder="e.g., Agreement #123">
-                                        <div class="form-text">Reference number or link to processing agreement.</div>
+                                <div class="col-12">
+                                    <div class="alert alert-info border-0">
+                                        <div class="d-flex">
+                                            <i class="fas fa-file-contract text-info me-3 mt-1"></i>
+                                            <div>
+                                                <h6 class="alert-heading mb-1">Compliance Documentation</h6>
+                                                <p class="mb-0 small">Document compliance assessments, DPO contacts, and additional notes.</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="complianceNotes" class="form-label fw-bold">Compliance Notes</label>
-                                <textarea name="complianceNotes" class="form-control" rows="4" 
-                                          placeholder="Additional compliance notes, special considerations, or assessment details...">@Model.GdprRegister?.ComplianceNotes</textarea>
-                                <div class="form-text">Any additional information about GDPR compliance for this service.</div>
+            <!-- Compliance Documentation Card -->
+                            <div class="card border-light mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-clipboard-check text-primary"></i> Compliance Assessment
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="dataProtectionOfficerContact" class="form-label fw-bold">DPO Contact</label>
+                                                <input type="text" name="dataProtectionOfficerContact" class="form-control" 
+                                                       value="@Model.GdprRegister?.DataProtectionOfficerContact"
+                                                       placeholder="e.g., dpo@company.com">
+                                                <div class="form-text">Contact information for the Data Protection Officer.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="lastGdprAssessment" class="form-label fw-bold">Last GDPR Assessment</label>
+                                                <input type="date" name="lastGdprAssessment" class="form-control" 
+                                                       value="@Model.GdprRegister?.LastGdprAssessment?.ToString("yyyy-MM-dd")">
+                                                <div class="form-text">Date of the last compliance assessment.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="complianceNotes" class="form-label fw-bold">Compliance Notes</label>
+                                        <textarea name="complianceNotes" class="form-control" rows="4" 
+                                                  placeholder="Additional notes about GDPR compliance for this service...">@Model.GdprRegister?.ComplianceNotes</textarea>
+                                        <div class="form-text">Additional compliance information, assessments, or notes.</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Note:</strong> This assessment will be timestamped and can be updated as compliance requirements change.
+                </div> <!-- Close compliance tab-pane -->
+                    
+                    <!-- Close tab-content div -->
+                <div>
+                    <!-- Modal Footer Information -->
+                    <div class="bg-light p-3 border-top">
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Note:</strong> This assessment will be timestamped and can be updated as compliance requirements change.
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -782,5 +1208,95 @@
             // TODO: Implement service data export functionality
             alert('Service export functionality will be implemented in a future update.');
         }
+        
+        // Toggle DPO Organisation fields visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const hasExternalDpoCheckbox = document.getElementById('hasExternalDpo');
+            const dpoFields = document.getElementById('dpoFields');
+            
+            if (hasExternalDpoCheckbox && dpoFields) {
+                hasExternalDpoCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        dpoFields.style.display = '';
+                    } else {
+                        dpoFields.style.display = 'none';
+                    }
+                });
+            }
+            
+            // GDPR Tab Navigation and Progress Tracking
+            const tabs = document.querySelectorAll('#gdprTabs button[data-bs-toggle="pill"]');
+            const progressBar = document.getElementById('progressBar');
+            const completionPercentage = document.getElementById('completionPercentage');
+            
+            function calculateProgress() {
+                let completedTabs = 0;
+                const totalTabs = tabs.length;
+                
+                tabs.forEach(tab => {
+                    const targetId = tab.getAttribute('data-bs-target').substring(1);
+                    const tabContent = document.getElementById(targetId);
+                    const badge = document.getElementById(targetId + '-badge');
+                    
+                    if (isTabComplete(tabContent)) {
+                        badge.style.display = 'block';
+                        completedTabs++;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                });
+                
+                const percentage = Math.round((completedTabs / totalTabs) * 100);
+                progressBar.style.width = percentage + '%';
+                completionPercentage.textContent = percentage;
+            }
+            
+            function isTabComplete(tabContent) {
+                const requiredFields = tabContent.querySelectorAll('input[required], select[required]');
+                const checkboxGroups = tabContent.querySelectorAll('input[type="checkbox"][name$="Categories"], input[type="checkbox"][name$="Purposes"], input[type="checkbox"][name$="Measures"]');
+                
+                // Check required fields
+                for (let field of requiredFields) {
+                    if (!field.value.trim()) {
+                        return false;
+                    }
+                }
+                
+                // Check if at least one checkbox is selected in each group
+                const groupNames = new Set();
+                checkboxGroups.forEach(checkbox => {
+                    groupNames.add(checkbox.name);
+                });
+                
+                for (let groupName of groupNames) {
+                    const groupCheckboxes = tabContent.querySelectorAll(`input[type="checkbox"][name="${groupName}"]`);
+                    let hasChecked = false;
+                    for (let checkbox of groupCheckboxes) {
+                        if (checkbox.checked) {
+                            hasChecked = true;
+                            break;
+                        }
+                    }
+                    if (!hasChecked) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+            
+            // Add event listeners to form fields for real-time progress updates
+            const gdprModal = document.getElementById('gdprModal');
+            if (gdprModal) {
+                const formFields = gdprModal.querySelectorAll('input, select, textarea');
+                formFields.forEach(field => {
+                    field.addEventListener('change', calculateProgress);
+                    field.addEventListener('input', calculateProgress);
+                });
+                
+                // Initial progress calculation
+                calculateProgress();
+            }
+        });
     </script>
 }

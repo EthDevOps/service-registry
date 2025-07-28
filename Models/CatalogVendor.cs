@@ -15,7 +15,4 @@ public class CatalogVendor
     
     // Navigation properties
     public BillingInformation? BillingInformation { get; set; }
-    
-    public bool GdprProcessingAgreementExists { get; set; }
-    public string? ProcessingAgreementLink { get; set; }
 }

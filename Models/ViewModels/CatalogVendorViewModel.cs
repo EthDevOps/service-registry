@@ -17,13 +17,6 @@ public class CatalogVendorViewModel
     [StringLength(500)]
     public string WebsiteUrl { get; set; } = string.Empty;
     
-    [Display(Name = "GDPR Processing Agreement Exists")]
-    public bool GdprProcessingAgreementExists { get; set; }
-    
-    [Display(Name = "Processing Agreement Link")]
-    [Url(ErrorMessage = "Please enter a valid URL")]
-    [StringLength(500)]
-    public string? ProcessingAgreementLink { get; set; }
     
     // Address Information
     [Display(Name = "Address")]
@@ -49,13 +42,6 @@ public class CatalogVendorCreateViewModel
     [StringLength(500)]
     public string WebsiteUrl { get; set; } = string.Empty;
     
-    [Display(Name = "GDPR Processing Agreement Exists")]
-    public bool GdprProcessingAgreementExists { get; set; }
-    
-    [Display(Name = "Processing Agreement Link")]
-    [Url(ErrorMessage = "Please enter a valid URL")]
-    [StringLength(500)]
-    public string? ProcessingAgreementLink { get; set; }
     
     // Address Information
     [Display(Name = "Create New Address")]
@@ -142,7 +128,6 @@ public class CatalogVendorDetailsViewModel
 public class VendorQuickStatsViewModel
 {
     public int TotalVendors { get; set; }
-    public int VendorsWithGdprAgreement { get; set; }
     public int VendorsWithActiveServices { get; set; }
     public int VendorsWithSubscriptions { get; set; }
 }

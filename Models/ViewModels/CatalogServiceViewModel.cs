@@ -169,6 +169,69 @@ public class CatalogServiceCreateViewModel
     
     [Display(Name = "Processes Sensitive Data")]
     public bool ProcessesSensitiveData { get; set; }
+    
+    // Controller Information
+    [Display(Name = "Controller Name")]
+    [StringLength(200)]
+    public string? ControllerName { get; set; }
+    
+    [Display(Name = "Controller Address")]
+    [StringLength(500)]
+    public string? ControllerAddress { get; set; }
+    
+    [Display(Name = "Controller ZIP Code")]
+    [StringLength(20)]
+    public string? ControllerZipCode { get; set; }
+    
+    [Display(Name = "Controller City")]
+    [StringLength(100)]
+    public string? ControllerCity { get; set; }
+    
+    [Display(Name = "Controller Country")]
+    [StringLength(100)]
+    public string? ControllerCountry { get; set; }
+    
+    [Display(Name = "Controller Phone")]
+    [StringLength(50)]
+    public string? ControllerPhone { get; set; }
+    
+    [Display(Name = "Controller Email")]
+    [EmailAddress]
+    [StringLength(200)]
+    public string? ControllerEmail { get; set; }
+    
+    // DPO Organisation Information
+    [Display(Name = "Has External DPO")]
+    public bool HasExternalDpo { get; set; }
+    
+    [Display(Name = "DPO Organisation Name")]
+    [StringLength(200)]
+    public string? DpoOrganisationName { get; set; }
+    
+    [Display(Name = "DPO Organisation Address")]
+    [StringLength(500)]
+    public string? DpoOrganisationAddress { get; set; }
+    
+    [Display(Name = "DPO Organisation ZIP Code")]
+    [StringLength(20)]
+    public string? DpoOrganisationZipCode { get; set; }
+    
+    [Display(Name = "DPO Organisation City")]
+    [StringLength(100)]
+    public string? DpoOrganisationCity { get; set; }
+    
+    [Display(Name = "DPO Organisation Country")]
+    [StringLength(100)]
+    public string? DpoOrganisationCountry { get; set; }
+    
+    [Display(Name = "DPO Organisation Phone")]
+    [StringLength(50)]
+    public string? DpoOrganisationPhone { get; set; }
+    
+    [Display(Name = "DPO Organisation Email")]
+    [EmailAddress]
+    [StringLength(200)]
+    public string? DpoOrganisationEmail { get; set; }
 }
 
 public class CatalogServiceEditViewModel : CatalogServiceCreateViewModel

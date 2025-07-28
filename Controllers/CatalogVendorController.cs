@@ -313,8 +313,7 @@ public class CatalogVendorController : Controller
             WebsiteUrl = request.WebsiteUrl ?? "",
             Country = request.Country,
             City = request.City ?? "Unknown",
-            BillingInformation = billingInfo,
-            GdprProcessingAgreementExists = false
+            BillingInformation = billingInfo
         };
 
         _context.Vendors.Add(vendor);
