@@ -343,109 +343,8 @@
                             </div>
                         </div>
                     }
-                </div>
 
-                <!-- Sidebar -->
-                <div class="col-lg-4">
-                    <!-- Quick Stats -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-chart-pie"></i> Quick Stats
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <small class="text-muted">Current Lifecycle Stage</small><br>
-                                <span class="badge bg-primary">@GetLifecycleStageLabel(Model.Lifecycle?.CurrentStage)</span>
-                            </div>
-                            
-                            @if (Model.Subscription != null)
-                            {
-                                <div class="mb-3">
-                                    <small class="text-muted">Seat Utilization</small><br>
-                                    @{
-                                        var utilization = Model.Subscription.SeatsAvailable > 0 
-                                            ? (double)Model.Subscription.SeatsUsed / Model.Subscription.SeatsAvailable * 100 
-                                            : 0;
-                                    }
-                                    <strong>@utilization.ToString("F1")%</strong>
-                                </div>
-                            }
-                            
-                            <div class="mb-3">
-                                <small class="text-muted">Hosting Location</small><br>
-                                <span class="badge @(Model.HostingType == CatalogHostingType.SaaS ? "bg-success" : "bg-warning")">
-                                    @GetHostingTypeLabel(Model.HostingType)
-                                </span>
-                                <br>
-                                <small class="text-muted mt-1">
-                                    <i class="fas fa-globe"></i> @Model.HostingCountry
-                                </small>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <small class="text-muted">GDPR Compliance</small><br>
-                                @if (Model.GdprRegister != null)
-                                {
-                                    <span class="badge bg-success">Registered</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Not Required</span>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Lifecycle Information -->
-                    @if (Model.Lifecycle != null)
-                    {
-                        <div class="card mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-project-diagram"></i> Lifecycle Stages
-                                </h5>
-                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStageModal">
-                                    <i class="fas fa-plus"></i> Add Stage
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                @if (Model.Lifecycle.Stages != null && Model.Lifecycle.Stages.Any())
-                                {
-                                    @foreach (var stage in Model.Lifecycle.Stages.OrderBy(s => s.StartDate))
-                                    {
-                                        <div class="mb-3">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="badge @(stage.Status == ServiceLifecycleStageStatus.Completed ? "bg-success" : stage.Status == ServiceLifecycleStageStatus.InProgress ? "bg-primary" : "bg-secondary")">
-                                                    @GetLifecycleStageLabel(stage.StageType)
-                                                </span>
-                                                <small class="text-muted">@GetLifecycleStageStatusLabel(stage.Status)</small>
-                                            </div>
-                                            @if (stage.StartDate.HasValue)
-                                            {
-                                                <small class="text-muted">Started: @stage.StartDate.Value.ToString("yyyy-MM-dd")</small>
-                                            }
-                                            @if (stage.EndDate.HasValue)
-                                            {
-                                                <br><small class="text-muted">Completed: @stage.EndDate.Value.ToString("yyyy-MM-dd")</small>
-                                            }
-                                            @if (!string.IsNullOrEmpty(stage.Sponsor))
-                                            {
-                                                <br><small class="text-muted">Sponsor: @stage.Sponsor</small>
-                                            }
-                                        </div>
-                                    }
-                                }
-                                else
-                                {
-                                    <p class="text-muted">No lifecycle stages recorded yet.</p>
-                                }
-                            </div>
-                        </div>
-                    }
-
-                    <!-- GDPR Information -->
+                    <!-- GDPR Compliance -->
                     <div class="card mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">
@@ -725,6 +624,172 @@
                                     <i class="fas fa-info-circle"></i> No GDPR compliance information recorded. 
                                     Click "Set GDPR" to configure compliance settings.
                                 </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Quick Stats -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-pie"></i> Quick Stats
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <small class="text-muted">Current Lifecycle Stage</small><br>
+                                <span class="badge bg-primary">@GetLifecycleStageLabel(Model.Lifecycle?.CurrentStage)</span>
+                            </div>
+                            
+                            @if (Model.Subscription != null)
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted">Seat Utilization</small><br>
+                                    @{
+                                        var utilization = Model.Subscription.SeatsAvailable > 0 
+                                            ? (double)Model.Subscription.SeatsUsed / Model.Subscription.SeatsAvailable * 100 
+                                            : 0;
+                                    }
+                                    <strong>@utilization.ToString("F1")%</strong>
+                                </div>
+                            }
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">Hosting Location</small><br>
+                                <span class="badge @(Model.HostingType == CatalogHostingType.SaaS ? "bg-success" : "bg-warning")">
+                                    @GetHostingTypeLabel(Model.HostingType)
+                                </span>
+                                <br>
+                                <small class="text-muted mt-1">
+                                    <i class="fas fa-globe"></i> @Model.HostingCountry
+                                </small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">GDPR Compliance</small><br>
+                                @if (Model.GdprRegister != null)
+                                {
+                                    <span class="badge bg-success">Registered</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Not Required</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lifecycle Information -->
+                    @if (Model.Lifecycle != null)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-project-diagram"></i> Lifecycle Stages
+                                </h5>
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStageModal">
+                                    <i class="fas fa-plus"></i> Add Stage
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                @if (Model.Lifecycle.Stages != null && Model.Lifecycle.Stages.Any())
+                                {
+                                    @foreach (var stage in Model.Lifecycle.Stages.OrderBy(s => s.StartDate))
+                                    {
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge @(stage.Status == ServiceLifecycleStageStatus.Completed ? "bg-success" : stage.Status == ServiceLifecycleStageStatus.InProgress ? "bg-primary" : "bg-secondary")">
+                                                    @GetLifecycleStageLabel(stage.StageType)
+                                                </span>
+                                                <small class="text-muted">@GetLifecycleStageStatusLabel(stage.Status)</small>
+                                            </div>
+                                            @if (stage.StartDate.HasValue)
+                                            {
+                                                <small class="text-muted">Started: @stage.StartDate.Value.ToString("yyyy-MM-dd")</small>
+                                            }
+                                            @if (stage.EndDate.HasValue)
+                                            {
+                                                <br><small class="text-muted">Completed: @stage.EndDate.Value.ToString("yyyy-MM-dd")</small>
+                                            }
+                                            @if (!string.IsNullOrEmpty(stage.Sponsor))
+                                            {
+                                                <br><small class="text-muted">Sponsor: @stage.Sponsor</small>
+                                            }
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-muted">No lifecycle stages recorded yet.</p>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- GDPR Compliance Summary -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-shield-alt"></i> GDPR Compliance
+                            </h6>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#gdprModal">
+                                <i class="fas fa-edit"></i> @(Model.GdprRegister != null ? "Update" : "Set")
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.GdprRegister != null)
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted">GDPR Compliance</small><br>
+                                    @if (Model.GdprRegister.HasProcessingAgreement)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle"></i> Configured
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-exclamation-triangle"></i> Incomplete
+                                        </span>
+                                    }
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted">Personal Data Processing</small><br>
+                                    @if (Model.GdprRegister.ProcessesEmployeePii || Model.GdprRegister.ProcessesExternalUserPii)
+                                    {
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-user-shield"></i> Processes PII
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check"></i> No PII
+                                        </span>
+                                    }
+                                </div>
+
+                                @if (Model.GdprRegister.LastGdprAssessment.HasValue)
+                                {
+                                    <div class="mb-0">
+                                        <small class="text-muted">Last Assessment</small><br>
+                                        <small>@Model.GdprRegister.LastGdprAssessment.Value.ToString("MMM dd, yyyy")</small>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-center">
+                                    <i class="fas fa-info-circle text-muted mb-2" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mb-0 small">
+                                        No GDPR compliance information configured.
+                                    </p>
+                                </div>
                             }
                         </div>
                     </div>
