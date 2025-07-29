@@ -17,7 +17,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        var connectionString = BuildConnectionString(builder.Configuration);
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -108,5 +108,32 @@ public class Program
         }
 
         app.Run();
+    }
+
+    private static string BuildConnectionString(IConfiguration configuration)
+    {
+        // Try environment variables first (for Kubernetes deployment)
+        var host = configuration["Database:Host"];
+        var database = configuration["Database:Name"];
+        var username = configuration["Database:Username"];
+        var password = configuration["Database:Password"];
+
+        if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(database) && 
+            !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+        {
+            return $"Host={host};Database={database};Username={username};Password={password}";
+        }
+
+        // Fallback to traditional connection string from appsettings.json
+        var fallbackConnectionString = configuration.GetConnectionString("DefaultConnection");
+        if (!string.IsNullOrEmpty(fallbackConnectionString))
+        {
+            return fallbackConnectionString;
+        }
+
+        throw new InvalidOperationException(
+            "Database connection configuration not found. " +
+            "Please configure either Database:Host, Database:Name, Database:Username, Database:Password " +
+            "environment variables or ConnectionStrings:DefaultConnection in appsettings.json");
     }
 }
