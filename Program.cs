@@ -55,9 +55,6 @@ public class Program
                 options.ClientSecret = googleClientSecret;
                 options.SaveTokens = true;
                 
-                // Force account selection prompt for multiple Google accounts
-                options.AuthorizationEndpoint = "https://accounts.google.com/oauth/v2/auth?prompt=select_account";
-                
                 // Ensure we get the email claim
                 options.Scope.Clear();
                 options.Scope.Add("openid");
@@ -66,6 +63,13 @@ public class Program
                 
                 options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Email, "email");
                 options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Name, "name");
+                
+                // Force account selection prompt for multiple Google accounts
+                options.Events.OnRedirectToAuthorizationEndpoint = context =>
+                {
+                    context.Response.Redirect(context.RedirectUri + "&prompt=select_account");
+                    return Task.CompletedTask;
+                };
             });
         }
 
