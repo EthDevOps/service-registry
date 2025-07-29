@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuokkaServiceRegistry.Data;
@@ -5,6 +6,7 @@ using QuokkaServiceRegistry.Models;
 
 namespace QuokkaServiceRegistry.Controllers;
 
+[Authorize]
 public class LicenseController : Controller
 {
     private readonly ApplicationDbContext _context;

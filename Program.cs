@@ -1,6 +1,12 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using QuokkaServiceRegistry.Authorization;
 using QuokkaServiceRegistry.Data;
+using QuokkaServiceRegistry.Services;
 
 namespace QuokkaServiceRegistry;
 
@@ -16,8 +22,50 @@ public class Program
             options.UseNpgsql(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-        builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+        // Configure Authentication
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+        })
+        .AddCookie(options =>
+        {
+            options.LoginPath = "/Account/Login";
+            options.LogoutPath = "/Account/Logout";
+            options.AccessDeniedPath = "/Account/AccessDenied";
+            options.ExpireTimeSpan = TimeSpan.FromHours(24);
+            options.SlidingExpiration = true;
+        })
+        .AddGoogle(options =>
+        {
+            options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId not configured");
+            options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret not configured");
+            options.SaveTokens = true;
+            
+            // Ensure we get the email claim
+            options.Scope.Clear();
+            options.Scope.Add("openid");
+            options.Scope.Add("profile");
+            options.Scope.Add("email");
+            
+            options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Email, "email");
+            options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Name, "name");
+        });
+
+        // Register services
+        builder.Services.AddScoped<IAuthorizedUsersService, AuthorizedUsersService>();
+        
+        // Configure Authorization
+        builder.Services.AddAuthorization(options =>
+        {
+            options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .AddRequirements(new EmailAuthorizationRequirement())
+                .Build();
+        });
+        
+        builder.Services.AddScoped<IAuthorizationHandler, EmailAuthorizationHandler>();
+        
         builder.Services.AddControllersWithViews();
 
         var app = builder.Build();
@@ -36,7 +84,8 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseRouting();
-
+        
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapStaticAssets();
