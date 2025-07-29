@@ -67,6 +67,7 @@ public class Program
         builder.Services.AddScoped<IAuthorizationHandler, EmailAuthorizationHandler>();
         
         builder.Services.AddControllersWithViews();
+        builder.Services.AddRazorPages();
 
         var app = builder.Build();
 
