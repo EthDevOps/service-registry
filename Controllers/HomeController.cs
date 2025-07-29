@@ -5,7 +5,6 @@ using QuokkaServiceRegistry.Models;
 
 namespace QuokkaServiceRegistry.Controllers;
 
-[Authorize]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;

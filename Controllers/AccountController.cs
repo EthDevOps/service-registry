@@ -25,6 +25,12 @@ namespace QuokkaServiceRegistry.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["AllowLocalBypass"] = _configuration.GetValue<bool>("Authentication:AllowLocalAdminBypass");
+            
+            // Check if Google authentication is configured
+            var googleClientId = _configuration["Authentication:Google:ClientId"];
+            var googleClientSecret = _configuration["Authentication:Google:ClientSecret"];
+            ViewData["GoogleAuthAvailable"] = !string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret);
+            
             return View();
         }
 
@@ -72,6 +78,19 @@ namespace QuokkaServiceRegistry.Controllers
         [AllowAnonymous]
         public IActionResult GoogleLogin(string? returnUrl = null)
         {
+            // Check if Google authentication is configured
+            var googleClientId = _configuration["Authentication:Google:ClientId"];
+            var googleClientSecret = _configuration["Authentication:Google:ClientSecret"];
+            
+            if (string.IsNullOrEmpty(googleClientId) || string.IsNullOrEmpty(googleClientSecret))
+            {
+                ViewData["Error"] = "Google authentication is not configured. Please use local admin login or configure Google OAuth credentials.";
+                ViewData["ReturnUrl"] = returnUrl;
+                ViewData["AllowLocalBypass"] = _configuration.GetValue<bool>("Authentication:AllowLocalAdminBypass");
+                ViewData["GoogleAuthAvailable"] = false;
+                return View("Login");
+            }
+            
             var redirectUrl = Url.Action(nameof(GoogleResponse), "Account", new { ReturnUrl = returnUrl });
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);

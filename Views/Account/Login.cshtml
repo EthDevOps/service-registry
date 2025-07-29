@@ -20,17 +20,32 @@
                         </div>
                     }
 
-                    <!-- Google Login -->
-                    <div class="mb-4">
-                        <a href="@Url.Action("GoogleLogin", "Account", new { returnUrl = ViewData["ReturnUrl"] })" 
-                           class="btn btn-danger btn-block w-100">
-                            <i class="fab fa-google"></i> Sign in with Google
-                        </a>
-                    </div>
+                    @if (ViewData["GoogleAuthAvailable"] != null && (bool)ViewData["GoogleAuthAvailable"])
+                    {
+                        <!-- Google Login -->
+                        <div class="mb-4">
+                            <a href="@Url.Action("GoogleLogin", "Account", new { returnUrl = ViewData["ReturnUrl"] })" 
+                               class="btn btn-danger btn-block w-100 d-flex align-items-center justify-content-center">
+                                <i class="fab fa-google me-2"></i> Sign in with Google
+                            </a>
+                            <small class="text-muted d-block mt-2 text-center">
+                                <i class="fas fa-info-circle"></i> You'll be able to choose your Google account
+                            </small>
+                        </div>
+                    }
 
                     @if (ViewData["AllowLocalBypass"] != null && (bool)ViewData["AllowLocalBypass"])
                     {
-                        <hr>
+                        @if (ViewData["GoogleAuthAvailable"] != null && (bool)ViewData["GoogleAuthAvailable"])
+                        {
+                            <hr>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info mb-4" role="alert">
+                                <i class="fas fa-info-circle"></i> Google authentication is not configured. Using local admin login only.
+                            </div>
+                        }
                         <div class="text-center mb-3">
                             <small class="text-muted">Development Mode Only</small>
                         </div>

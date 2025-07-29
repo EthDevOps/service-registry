@@ -23,10 +23,10 @@ public class Program
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
         // Configure Authentication
-        builder.Services.AddAuthentication(options =>
+        var authBuilder = builder.Services.AddAuthentication(options =>
         {
             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         })
         .AddCookie(options =>
         {
@@ -35,22 +35,39 @@ public class Program
             options.AccessDeniedPath = "/Account/AccessDenied";
             options.ExpireTimeSpan = TimeSpan.FromHours(24);
             options.SlidingExpiration = true;
-        })
-        .AddGoogle(options =>
-        {
-            options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId not configured");
-            options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret not configured");
-            options.SaveTokens = true;
-            
-            // Ensure we get the email claim
-            options.Scope.Clear();
-            options.Scope.Add("openid");
-            options.Scope.Add("profile");
-            options.Scope.Add("email");
-            
-            options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Email, "email");
-            options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Name, "name");
         });
+
+        // Add Google authentication only if credentials are configured
+        var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+        var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        
+        if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+        {
+            // Update default challenge scheme to Google when available
+            builder.Services.Configure<AuthenticationOptions>(options =>
+            {
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            });
+
+            authBuilder.AddGoogle(options =>
+            {
+                options.ClientId = googleClientId;
+                options.ClientSecret = googleClientSecret;
+                options.SaveTokens = true;
+                
+                // Force account selection prompt for multiple Google accounts
+                options.AuthorizationEndpoint = "https://accounts.google.com/oauth/v2/auth?prompt=select_account";
+                
+                // Ensure we get the email claim
+                options.Scope.Clear();
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("email");
+                
+                options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Email, "email");
+                options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Name, "name");
+            });
+        }
 
         // Register services
         builder.Services.AddScoped<IAuthorizedUsersService, AuthorizedUsersService>();
