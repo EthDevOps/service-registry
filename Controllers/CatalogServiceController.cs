@@ -21,13 +21,13 @@ public class CatalogServiceController : Controller
     public async Task<IActionResult> Index(string? hostingType, string? hostingCountry, string? searchTerm)
     {
         var servicesQuery = _context.Services
-            .Include(s => s.Vendor)
             .Include(s => s.License)
             .Include(s => s.OnpremiseHosts)
-            .ThenInclude(h => h.CloudProvider)
             .Include(s => s.Lifecycle)
             .Include(s => s.Subscription)
             .Include(s => s.GdprRegister)
+            .Include(s => s.BillingInformation)
+            .Include(s => s.PaymentMethod)
             .AsQueryable();
 
         // Apply hosting type filter
@@ -47,7 +47,7 @@ public class CatalogServiceController : Controller
         {
             servicesQuery = servicesQuery.Where(s => 
                 s.Name.Contains(searchTerm) ||
-                s.Vendor.Name.Contains(searchTerm) ||
+                s.VendorName.Contains(searchTerm) ||
                 s.License.Name.Contains(searchTerm) ||
                 s.HostingCountry.Contains(searchTerm));
         }
@@ -93,12 +93,10 @@ public class CatalogServiceController : Controller
         }
 
         var catalogService = await _context.Services
-            .Include(s => s.Vendor)
-                .ThenInclude(v => v.BillingInformation)
-                    .ThenInclude(b => b.CostCenter)
+            .Include(s => s.BillingInformation)
+                .ThenInclude(b => b.CostCenter)
             .Include(s => s.License)
             .Include(s => s.OnpremiseHosts)
-                .ThenInclude(h => h.CloudProvider)
             .Include(s => s.Lifecycle)
                 .ThenInclude(l => l.Stages)
             .Include(s => s.Subscription)
@@ -114,16 +112,23 @@ public class CatalogServiceController : Controller
             return NotFound();
         }
 
+        // Get data controllers for dropdown
+        ViewBag.DataControllers = await _context.GdprControllers
+            .Include(c => c.CostCenter)
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+
         return View(catalogService);
     }
 
     // GET: CatalogService/Create
     public IActionResult Create()
     {
-        ViewData["VendorId"] = new SelectList(_context.Vendors, "Id", "Name");
         ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name");
         ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name");
         ViewData["GdprRegisterId"] = new SelectList(_context.GdprRegisters, "Id", "Id");
+        ViewData["BillingInformationId"] = new SelectList(_context.BillingInfo, "Id", "Id");
+        ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "Id", "Name");
         
         return View();
     }
@@ -131,10 +136,9 @@ public class CatalogServiceController : Controller
     // POST: CatalogService/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Name,IsPropriety,VendorId,LicenseId,HostingType,HostingCountry,SaasRegionReference,SubscriptionId,GdprRegisterId")] CatalogService catalogService, ServiceLifecycleStageType initialStage = ServiceLifecycleStageType.ProofOfConcept)
+    public async Task<IActionResult> Create([Bind("Id,Name,IsPropriety,VendorName,VendorWebsiteUrl,VendorCountry,VendorCity,LicenseId,HostingType,HostingCountry,SaasRegionReference,SubscriptionId,GdprRegisterId,BillingInformationId,PaymentMethodId")] CatalogService catalogService, ServiceLifecycleStageType initialStage = ServiceLifecycleStageType.ProofOfConcept)
     {
         ModelState.Remove("License");
-        ModelState.Remove("Vendor");
         ModelState.Remove("Lifecycle");
 
         if (ModelState.IsValid)
@@ -164,10 +168,11 @@ public class CatalogServiceController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        ViewData["VendorId"] = new SelectList(_context.Vendors, "Id", "Name", catalogService.VendorId);
         ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name", catalogService.LicenseId);
         ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.SubscriptionId);
         ViewData["GdprRegisterId"] = new SelectList(_context.GdprRegisters, "Id", "Id", catalogService.GdprRegisterId);
+        ViewData["BillingInformationId"] = new SelectList(_context.BillingInfo, "Id", "Id", catalogService.BillingInformationId);
+        ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "Id", "Name", catalogService.PaymentMethodId);
         
         return View(catalogService);
     }
@@ -186,7 +191,6 @@ public class CatalogServiceController : Controller
             return NotFound();
         }
         
-        ViewData["VendorId"] = new SelectList(_context.Vendors, "Id", "Name", catalogService.VendorId);
         ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name", catalogService.LicenseId);
         ViewData["LifecycleId"] = new SelectList(_context.ServiceLifecycles, "Id", "CurrentStage", catalogService.LifecycleId);
         ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.SubscriptionId);
@@ -198,14 +202,13 @@ public class CatalogServiceController : Controller
     // POST: CatalogService/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IsPropriety,VendorId,LicenseId,HostingType,HostingCountry,SaasRegionReference,LifecycleId,SubscriptionId,GdprRegisterId")] CatalogService catalogService)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IsPropriety,VendorName,VendorWebsiteUrl,VendorCountry,VendorCity,LicenseId,HostingType,HostingCountry,SaasRegionReference,LifecycleId,SubscriptionId,GdprRegisterId,BillingInformationId,PaymentMethodId")] CatalogService catalogService)
     {
         if (id != catalogService.Id)
         {
             return NotFound();
         }
         ModelState.Remove("License");
-        ModelState.Remove("Vendor");
         ModelState.Remove("Lifecycle");
 
         if (ModelState.IsValid)
@@ -229,7 +232,6 @@ public class CatalogServiceController : Controller
             return RedirectToAction(nameof(Index));
         }
         
-        ViewData["VendorId"] = new SelectList(_context.Vendors, "Id", "Name", catalogService.VendorId);
         ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name", catalogService.LicenseId);
         ViewData["LifecycleId"] = new SelectList(_context.ServiceLifecycles, "Id", "CurrentStage", catalogService.LifecycleId);
         ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.SubscriptionId);
@@ -247,10 +249,8 @@ public class CatalogServiceController : Controller
         }
 
         var catalogService = await _context.Services
-            .Include(s => s.Vendor)
             .Include(s => s.License)
             .Include(s => s.OnpremiseHosts)
-            .ThenInclude(h => h.CloudProvider)
             .Include(s => s.Lifecycle)
             .Include(s => s.Subscription)
             .Include(s => s.GdprRegister)
@@ -355,13 +355,7 @@ public class CatalogServiceController : Controller
         string? dataTransfers = null,
         string? purposesOfUse = null,
         // Controller parameters
-        string? controllerName = null,
-        string? controllerEmail = null,
-        string? controllerAddress = null,
-        string? controllerZipCode = null,
-        string? controllerCity = null,
-        string? controllerCountry = null,
-        string? controllerPhone = null,
+        int? controllerId = null,
         // DPO parameters
         bool hasExternalDpo = false,
         string? dpoOrganisationName = null,
@@ -384,20 +378,13 @@ public class CatalogServiceController : Controller
             return NotFound();
         }
 
-        // Handle Controller information - create but don't save yet
+        // Handle Controller information - get from database
         GdprController? controller = null;
-        if (!string.IsNullOrEmpty(controllerName) && !string.IsNullOrEmpty(controllerEmail))
+        if (controllerId.HasValue)
         {
-            controller = new GdprController
-            {
-                Name = controllerName,
-                Email = controllerEmail,
-                Address = controllerAddress ?? "",
-                ZipCode = controllerZipCode ?? "",
-                City = controllerCity ?? "",
-                Country = controllerCountry ?? "",
-                Phone = controllerPhone ?? ""
-            };
+            controller = await _context.GdprControllers
+                .Include(c => c.CostCenter)
+                .FirstOrDefaultAsync(c => c.Id == controllerId.Value);
         }
 
         // Handle DPO Organisation information - create but don't save yet
@@ -449,6 +436,7 @@ public class CatalogServiceController : Controller
                     ? purposesOfUse.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
                     : new List<string>(),
                 Controller = controller,
+                ControllerId = controllerId,
                 DpoOrganisation = dpoOrganisation
             };
 
@@ -488,28 +476,17 @@ public class CatalogServiceController : Controller
                 ? purposesOfUse.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
                 : new List<string>();
 
-            // Update or create controller
-            if (!string.IsNullOrEmpty(controllerName) && !string.IsNullOrEmpty(controllerEmail))
+            // Update controller reference
+            if (controllerId.HasValue && controller != null)
             {
-                if (catalogService.GdprRegister.Controller == null)
-                {
-                    catalogService.GdprRegister.Controller = controller;
-                }
-                else
-                {
-                    catalogService.GdprRegister.Controller.Name = controllerName;
-                    catalogService.GdprRegister.Controller.Email = controllerEmail;
-                    catalogService.GdprRegister.Controller.Address = controllerAddress ?? "";
-                    catalogService.GdprRegister.Controller.ZipCode = controllerZipCode ?? "";
-                    catalogService.GdprRegister.Controller.City = controllerCity ?? "";
-                    catalogService.GdprRegister.Controller.Country = controllerCountry ?? "";
-                    catalogService.GdprRegister.Controller.Phone = controllerPhone ?? "";
-                }
+                catalogService.GdprRegister.Controller = controller;
+                catalogService.GdprRegister.ControllerId = controllerId.Value;
             }
-            else if (catalogService.GdprRegister.Controller != null)
+            else
             {
                 // Remove controller if no longer provided
                 catalogService.GdprRegister.Controller = null;
+                catalogService.GdprRegister.ControllerId = null;
             }
 
             // Update or create DPO organisation

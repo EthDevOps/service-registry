@@ -1,0 +1,92 @@
+@model IEnumerable<QuokkaServiceRegistry.Models.CostCenter>
+@{
+    ViewData["Title"] = "Manage Cost Centers";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Manage Cost Centers</h1>
+        <p>Create, edit, and manage organizational cost centers.</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <a asp-action="CreateCostCenter" class="btn btn-success mb-3">
+            <i class="fas fa-plus"></i> Create New Cost Center
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Cost Centers</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var costCenter in Model)
+                                {
+                                    <tr>
+                                        <td>@costCenter.Name</td>
+                                        <td>@costCenter.Code</td>
+                                        <td>@costCenter.Description</td>
+                                        <td>
+                                            <a asp-action="EditCostCenter" asp-route-id="@costCenter.Id" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <a asp-action="DeleteCostCenter" asp-route-id="@costCenter.Id" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No cost centers found.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+        </a>
+    </div>
+</div>

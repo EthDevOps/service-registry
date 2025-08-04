@@ -1,0 +1,54 @@
+@model QuokkaServiceRegistry.Models.GdprController
+@{
+    ViewData["Title"] = "Delete Data Controller";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Delete Data Controller</h1>
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            Are you sure you want to delete this data controller?
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Name:</dt>
+                    <dd class="col-sm-9">@Model.Name</dd>
+                    
+                    <dt class="col-sm-3">Email:</dt>
+                    <dd class="col-sm-9">@Model.Email</dd>
+                    
+                    <dt class="col-sm-3">Cost Center:</dt>
+                    <dd class="col-sm-9">@(Model.CostCenter?.Name ?? "None")</dd>
+                    
+                    <dt class="col-sm-3">Data Owner:</dt>
+                    <dd class="col-sm-9">@(Model.DataOwner ?? "None")</dd>
+                    
+                    <dt class="col-sm-3">Address:</dt>
+                    <dd class="col-sm-9">@Model.Address</dd>
+                    
+                    <dt class="col-sm-3">City:</dt>
+                    <dd class="col-sm-9">@Model.City</dd>
+                    
+                    <dt class="col-sm-3">Country:</dt>
+                    <dd class="col-sm-9">@Model.Country</dd>
+                    
+                    <dt class="col-sm-3">Phone:</dt>
+                    <dd class="col-sm-9">@Model.Phone</dd>
+                </dl>
+                
+                <form asp-action="DeleteDataController">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="submit" value="Delete" class="btn btn-danger" />
+                    <a asp-action="DataControllers" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

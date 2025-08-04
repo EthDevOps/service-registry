@@ -12,7 +12,6 @@ public class ApplicationDbContext : IdentityDbContext
     }
 
     public DbSet<CatalogService> Services { get; set; }
-    public DbSet<CatalogVendor> Vendors { get; set; }
     public DbSet<ServiceSubscription> Subscriptions { get; set; }
     public DbSet<SoftwareLicense> Licenses { get; set; }
     public DbSet<OnpremiseHost> OnpremiseHosts { get; set; }
@@ -41,8 +40,11 @@ public class ApplicationDbContext : IdentityDbContext
             entity.Property(e => e.HostingCountry).IsRequired().HasMaxLength(100);
             entity.Property(e => e.SaasRegionReference).HasMaxLength(200);
             
-            // Configure 1-to-many relationship with Vendor (multiple services can use same vendor)
-            entity.HasOne(e => e.Vendor).WithMany().HasForeignKey(e => e.VendorId);
+            // Configure vendor properties (integrated from CatalogVendor)
+            entity.Property(e => e.VendorName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.VendorWebsiteUrl).HasMaxLength(500);
+            entity.Property(e => e.VendorCountry).HasMaxLength(100);
+            entity.Property(e => e.VendorCity).HasMaxLength(100);
             
             // Configure 1-to-many relationship with OnpremiseHosts
             entity.HasMany(e => e.OnpremiseHosts).WithOne(h => h.CatalogService).HasForeignKey(h => h.CatalogServiceId);
@@ -52,19 +54,12 @@ public class ApplicationDbContext : IdentityDbContext
             entity.HasOne(e => e.Lifecycle).WithOne().HasForeignKey<CatalogService>(e => e.LifecycleId);
             entity.HasOne(e => e.GdprRegister).WithOne().HasForeignKey<CatalogService>(e => e.GdprRegisterId).IsRequired(false);
             entity.HasOne(e => e.Subscription).WithOne().HasForeignKey<CatalogService>(e => e.SubscriptionId).IsRequired(false);
+            
+            // Configure billing and payment relationships
+            entity.HasOne(e => e.BillingInformation).WithMany().HasForeignKey(e => e.BillingInformationId).IsRequired(false);
+            entity.HasOne(e => e.PaymentMethod).WithMany().HasForeignKey(e => e.PaymentMethodId).IsRequired(false);
         });
 
-        // Configure CatalogVendor
-        modelBuilder.Entity<CatalogVendor>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.WebsiteUrl).HasMaxLength(500);
-            entity.Property(e => e.Country).HasMaxLength(100);
-            entity.Property(e => e.City).HasMaxLength(100);
-            entity.HasOne(e => e.BillingInformation).WithMany().HasForeignKey(e => e.BillingInformationId);
-            entity.HasOne(e => e.PaymentMethod).WithMany(p => p.Vendors).HasForeignKey(e => e.PaymentMethodId);
-        });
 
         // Configure ServiceSubscription
         modelBuilder.Entity<ServiceSubscription>(entity =>
@@ -97,7 +92,7 @@ public class ApplicationDbContext : IdentityDbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Region).IsRequired().HasMaxLength(100);
             entity.Property(e => e.NetboxReferenceUrl).IsRequired().HasMaxLength(500);
-            entity.HasOne(e => e.CloudProvider).WithMany().HasForeignKey("CloudProviderId");
+            entity.Property(e => e.CloudProvider).IsRequired().HasMaxLength(200);
             entity.HasOne(e => e.CatalogService).WithMany(s => s.OnpremiseHosts).HasForeignKey(e => e.CatalogServiceId);
         });
 
@@ -233,7 +228,14 @@ public class ApplicationDbContext : IdentityDbContext
             entity.Property(e => e.PrepaidVoucherCode).HasMaxLength(100);
             entity.Property(e => e.PaymentMethodId).HasMaxLength(100);
             entity.HasOne(e => e.CostCenter).WithMany().HasForeignKey(e => e.CostCenterId);
-            entity.HasMany(e => e.Vendors).WithOne(v => v.PaymentMethod).HasForeignKey(v => v.PaymentMethodId);
+            entity.HasMany(e => e.Services).WithOne(s => s.PaymentMethod).HasForeignKey(s => s.PaymentMethodId);
+        });
+
+        // Configure GdprController
+        modelBuilder.Entity<GdprController>(entity =>
+        {
+            entity.Property(e => e.DataOwner).HasMaxLength(200);
+            entity.HasOne(e => e.CostCenter).WithMany().HasForeignKey(e => e.CostCenterId);
         });
     }
 }

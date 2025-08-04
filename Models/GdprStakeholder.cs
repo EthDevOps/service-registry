@@ -14,6 +14,9 @@ public class GdprStakeholder
 
 public class GdprController : GdprStakeholder
 {
+    public int? CostCenterId { get; set; }
+    public CostCenter? CostCenter { get; set; }
+    public string? DataOwner { get; set; }
 }
 
 public class GdprDpoOrganisation : GdprStakeholder

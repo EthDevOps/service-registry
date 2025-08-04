@@ -1,0 +1,97 @@
+@model IEnumerable<QuokkaServiceRegistry.Models.GdprController>
+@{
+    ViewData["Title"] = "Manage Data Controllers";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Manage Data Controllers</h1>
+        <p>Create, edit, and manage GDPR data controllers for services.</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <a asp-action="CreateDataController" class="btn btn-success mb-3">
+            <i class="fas fa-plus"></i> Create New Data Controller
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Data Controllers</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Cost Center</th>
+                                    <th>Data Owner</th>
+                                    <th>Country</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var controller in Model)
+                                {
+                                    <tr>
+                                        <td>@controller.Name</td>
+                                        <td>@controller.Email</td>
+                                        <td>@(controller.CostCenter?.Name ?? "-")</td>
+                                        <td>@(controller.DataOwner ?? "-")</td>
+                                        <td>@controller.Country</td>
+                                        <td>
+                                            <a asp-action="EditDataController" asp-route-id="@controller.Id" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <a asp-action="DeleteDataController" asp-route-id="@controller.Id" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No data controllers found.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+        </a>
+    </div>
+</div>

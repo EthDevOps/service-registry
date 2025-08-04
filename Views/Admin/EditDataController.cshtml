@@ -1,0 +1,109 @@
+@model QuokkaServiceRegistry.Models.GdprController
+@{
+    ViewData["Title"] = "Edit Data Controller";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Edit Data Controller</h1>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="EditDataController" asp-route-id="@Model.Id" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Name" class="form-label">Controller Name *</label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">Email *</label>
+                                <input asp-for="Email" class="form-control" type="email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="CostCenterId" class="form-label">Cost Center</label>
+                                <select asp-for="CostCenterId" class="form-select">
+                                    <option value="">Select a cost center...</option>
+                                    @foreach (var costCenter in ViewBag.CostCenters as List<CostCenter>)
+                                    {
+                                        <option value="@costCenter.Id">@costCenter.Name (@costCenter.Code)</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="CostCenterId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="DataOwner" class="form-label">Data Owner</label>
+                                <input asp-for="DataOwner" class="form-control" />
+                                <span asp-validation-for="DataOwner" class="text-danger"></span>
+                                <div class="form-text">Name of the person responsible for data in this cost center</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label">Address</label>
+                        <input asp-for="Address" class="form-control" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="ZipCode" class="form-label">ZIP Code</label>
+                                <input asp-for="ZipCode" class="form-control" />
+                                <span asp-validation-for="ZipCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="City" class="form-label">City</label>
+                                <input asp-for="City" class="form-control" />
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Country" class="form-label">Country</label>
+                                <input asp-for="Country" class="form-control" />
+                                <span asp-validation-for="Country" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <input asp-for="Phone" class="form-control" type="tel" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <input type="submit" value="Save Changes" class="btn btn-primary" />
+                        <a asp-action="DataControllers" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

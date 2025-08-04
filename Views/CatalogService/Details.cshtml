@@ -175,7 +175,7 @@
                     </div>
 
                     <!-- Vendor Information -->
-                    @if (Model.Vendor != null)
+                    @if (!string.IsNullOrEmpty(Model.VendorName))
                     {
                         <div class="card mb-4">
                             <div class="card-header">
@@ -188,19 +188,19 @@
                                     <div class="col-md-6">
                                         <dl class="row">
                                             <dt class="col-sm-4">Vendor Name:</dt>
-                                            <dd class="col-sm-8">@Model.Vendor.Name</dd>
+                                            <dd class="col-sm-8">@Model.VendorName</dd>
                                             
                                             <dt class="col-sm-4">Website:</dt>
                                             <dd class="col-sm-8">
-                                                <a href="@Model.Vendor.WebsiteUrl" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                <a href="@Model.VendorWebsiteUrl" target="_blank" class="btn btn-outline-primary btn-sm">
                                                     <i class="fas fa-external-link-alt"></i> Visit Website
                                                 </a>
                                             </dd>
                                             
-                                            @if (!string.IsNullOrEmpty(Model.Vendor.Country) || !string.IsNullOrEmpty(Model.Vendor.City))
+                                            @if (!string.IsNullOrEmpty(Model.VendorCountry) || !string.IsNullOrEmpty(Model.VendorCity))
                                             {
                                                 <dt class="col-sm-4">Location:</dt>
-                                                <dd class="col-sm-8">@Model.Vendor.City, @Model.Vendor.Country</dd>
+                                                <dd class="col-sm-8">@Model.VendorCity, @Model.VendorCountry</dd>
                                             }
                                             
                                         </dl>
@@ -280,7 +280,7 @@
                                             @foreach (var host in Model.OnpremiseHosts)
                                             {
                                                 <tr>
-                                                    <td>@host.CloudProvider?.Name</td>
+                                                    <td>@host.CloudProvider</td>
                                                     <td>@host.Region</td>
                                                     <td>
                                                         <a href="@host.NetboxReferenceUrl" target="_blank" class="btn btn-outline-info btn-sm">
@@ -1083,70 +1083,67 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="controllerName" class="form-label fw-bold">Controller Name <span class="text-danger">*</span></label>
-                                                <input type="text" name="controllerName" class="form-control" 
-                                                       value="@Model.GdprRegister?.Controller?.Name"
-                                                       placeholder="e.g., Company Name" data-required="true">
-                                                <div class="form-text">Name of the data controller organization.</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="controllerEmail" class="form-label fw-bold">Controller Email <span class="text-danger">*</span></label>
-                                                <input type="email" name="controllerEmail" class="form-control" 
-                                                       value="@Model.GdprRegister?.Controller?.Email"
-                                                       placeholder="e.g., contact@company.com" data-required="true">
-                                                <div class="form-text">Email contact for the controller.</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
                                         <div class="col-md-12">
                                             <div class="mb-3">
-                                                <label for="controllerAddress" class="form-label fw-bold">Controller Address</label>
-                                                <input type="text" name="controllerAddress" class="form-control" 
-                                                       value="@Model.GdprRegister?.Controller?.Address"
-                                                       placeholder="e.g., 123 Main Street">
-                                                <div class="form-text">Physical address of the controller.</div>
+                                                <label for="controllerId" class="form-label fw-bold">Data Controller <span class="text-danger">*</span></label>
+                                                <select name="controllerId" class="form-select" data-required="true">
+                                                    <option value="">Select a data controller...</option>
+                                                    @foreach (var controller in ViewBag.DataControllers as List<GdprController>)
+                                                    {
+                                                        <option value="@controller.Id" 
+                                                                selected="@(controller.Id == Model.GdprRegister?.ControllerId)">
+                                                            @controller.Name
+                                                            @if (controller.CostCenter != null)
+                                                            {
+                                                                <text> (@controller.CostCenter.Name - @controller.DataOwner)</text>
+                                                            }
+                                                        </option>
+                                                    }
+                                                </select>
+                                                <div class="form-text">
+                                                    Select the GDPR data controller for this service. Data controllers can be managed in the 
+                                                    <a href="/Admin/DataControllers" target="_blank">Admin section</a>.
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <div class="mb-3">
-                                                <label for="controllerZipCode" class="form-label fw-bold">ZIP Code</label>
-                                                <input type="text" name="controllerZipCode" class="form-control" 
-                                                       value="@Model.GdprRegister?.Controller?.ZipCode"
-                                                       placeholder="12345">
+                                    
+                                    @if (Model.GdprRegister?.Controller != null)
+                                    {
+                                        <div class="row mt-3">
+                                            <div class="col-md-12">
+                                                <div class="card bg-light">
+                                                    <div class="card-body p-3">
+                                                        <h6 class="card-title mb-2">Selected Controller Details</h6>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <strong>Name:</strong> @Model.GdprRegister.Controller.Name<br>
+                                                                <strong>Email:</strong> @Model.GdprRegister.Controller.Email<br>
+                                                                @if (!string.IsNullOrEmpty(Model.GdprRegister.Controller.Phone))
+                                                                {
+                                                                    <strong>Phone:</strong> @Model.GdprRegister.Controller.Phone<br>
+                                                                }
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                @if (Model.GdprRegister.Controller.CostCenter != null)
+                                                                {
+                                                                    <strong>Cost Center:</strong> @Model.GdprRegister.Controller.CostCenter.Name<br>
+                                                                    @if (!string.IsNullOrEmpty(Model.GdprRegister.Controller.DataOwner))
+                                                                    {
+                                                                        <strong>Data Owner:</strong> @Model.GdprRegister.Controller.DataOwner<br>
+                                                                    }
+                                                                }
+                                                                @if (!string.IsNullOrEmpty(Model.GdprRegister.Controller.Country))
+                                                                {
+                                                                    <strong>Country:</strong> @Model.GdprRegister.Controller.Country
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="controllerCity" class="form-label fw-bold">City</label>
-                                                <input type="text" name="controllerCity" class="form-control" 
-                                                       value="@Model.GdprRegister?.Controller?.City"
-                                                       placeholder="e.g., New York">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="mb-3">
-                                                <label for="controllerCountry" class="form-label fw-bold">Country</label>
-                                                <input type="text" name="controllerCountry" class="form-control" 
-                                                       value="@Model.GdprRegister?.Controller?.Country"
-                                                       placeholder="e.g., USA">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="mb-3">
-                                                <label for="controllerPhone" class="form-label fw-bold">Phone</label>
-                                                <input type="tel" name="controllerPhone" class="form-control" 
-                                                       value="@Model.GdprRegister?.Controller?.Phone"
-                                                       placeholder="+1234567890">
-                                            </div>
-                                        </div>
-                                    </div>
+                                    }
                                 </div>
                             </div>
 

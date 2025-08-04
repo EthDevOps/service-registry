@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Admin Dashboard</h1>
+        <p>Manage system settings and configurations.</p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-users"></i> User Management
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Manage authorized users who can access the system.</p>
+                <a asp-action="Users" class="btn btn-primary">
+                    <i class="fas fa-users"></i> Manage Users
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-building"></i> Cost Centers
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Manage organizational cost centers for billing and reporting.</p>
+                <a asp-action="CostCenters" class="btn btn-primary">
+                    <i class="fas fa-building"></i> Manage Cost Centers
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-shield-alt"></i> GDPR Data Controllers
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Manage GDPR data controllers for services and compliance tracking.</p>
+                <a asp-action="DataControllers" class="btn btn-primary">
+                    <i class="fas fa-shield-alt"></i> Manage Data Controllers
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
