@@ -75,6 +75,7 @@ public class Program
 
         // Register services
         builder.Services.AddScoped<IAuthorizedUsersService, AuthorizedUsersService>();
+        builder.Services.AddSingleton<IVersionService, VersionService>();
         
         // Configure Authorization
         builder.Services.AddAuthorization(options =>
