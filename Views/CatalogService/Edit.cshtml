@@ -237,19 +237,47 @@
                                     </button>
                                 </div>
 
-                                <!-- GDPR Register - Managed through detailed compliance workflow -->
+                                <!-- GDPR Register - Direct management -->
                                 <input type="hidden" asp-for="GdprRegisterId" />
-                                @if (Model.GdprRegister != null)
-                                {
-                                    <div class="form-group mb-3">
-                                        <label class="form-label">GDPR Compliance</label>
-                                        <div class="alert alert-info">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">GDPR Compliance Management</label>
+                                    @if (Model.GdprRegister != null)
+                                    {
+                                        <div class="alert alert-success">
                                             <i class="fas fa-shield-alt"></i>
-                                            GDPR compliance is configured for this service. 
-                                            <a asp-action="Details" asp-route-id="@Model.Id" class="alert-link">View details</a> to manage compliance settings.
+                                            <strong>GDPR compliance configured</strong><br>
+                                            <small>
+                                                @if (Model.GdprRegister.ProcessesEmployeePii || Model.GdprRegister.ProcessesExternalUserPii)
+                                                {
+                                                    <span class="badge bg-warning text-dark">Processes PII</span>
+                                                }
+                                                @if (Model.GdprRegister.ProcessesSensitiveData)
+                                                {
+                                                    <span class="badge bg-danger">Sensitive Data</span>
+                                                }
+                                                @if (Model.GdprRegister.Controller != null)
+                                                {
+                                                    <span class="badge bg-info">Controller: @Model.GdprRegister.Controller.Name</span>
+                                                }
+                                            </small>
                                         </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-light">
+                                            <i class="fas fa-info-circle"></i>
+                                            No GDPR compliance information configured for this service.
+                                        </div>
+                                    }
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="openGdprInNewTab()">
+                                            <i class="fas fa-shield-alt"></i> @(Model.GdprRegister != null ? "Edit" : "Configure") GDPR Compliance
+                                        </button>
+                                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-sm" target="_blank">
+                                            <i class="fas fa-external-link-alt"></i> View Full Details
+                                        </a>
                                     </div>
-                                }
+                                </div>
 
                                 <!-- Payment Method -->
                                 <div class="form-group mb-3">
@@ -426,5 +454,20 @@
                 this.setCustomValidity('');
             }
         });
+        
+        // Function to open GDPR management in new tab
+        function openGdprInNewTab() {
+            const serviceId = '@Model.Id';
+            const detailsUrl = '@Url.Action("Details", "CatalogService", new { id = Model.Id })';
+            const newWindow = window.open(detailsUrl, '_blank');
+            
+            // Set a flag in sessionStorage to indicate we should open GDPR modal
+            sessionStorage.setItem('openGdprModal', 'true');
+            
+            // Focus the new window
+            if (newWindow) {
+                newWindow.focus();
+            }
+        }
     </script>
 }

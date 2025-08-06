@@ -1664,6 +1664,20 @@
                 // Initial progress calculation
                 calculateProgress();
             }
+            
+            // Check if GDPR modal should be auto-opened (from Edit page link)
+            if (sessionStorage.getItem('openGdprModal') === 'true') {
+                sessionStorage.removeItem('openGdprModal'); // Remove the flag
+                
+                // Wait for page to fully load, then open the GDPR modal
+                setTimeout(() => {
+                    const gdprModalElement = document.getElementById('gdprModal');
+                    if (gdprModalElement) {
+                        const gdprModal = new bootstrap.Modal(gdprModalElement);
+                        gdprModal.show();
+                    }
+                }, 500); // Small delay to ensure everything is loaded
+            }
         });
     </script>
 }
