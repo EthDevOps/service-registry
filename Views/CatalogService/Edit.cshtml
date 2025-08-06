@@ -213,23 +213,43 @@
                                 </h5>
                             </div>
                             <div class="card-body">
-                                <!-- Subscription -->
+                                <!-- Subscription - Managed through detailed subscription workflow -->
+                                <input type="hidden" asp-for="SubscriptionId" />
                                 <div class="form-group mb-3">
-                                    <label asp-for="SubscriptionId" class="form-label">Subscription (Optional)</label>
-                                    <select asp-for="SubscriptionId" class="form-select" asp-items="ViewBag.SubscriptionId">
-                                        <option value="">-- No Subscription --</option>
-                                    </select>
-                                    <span asp-validation-for="SubscriptionId" class="text-danger"></span>
+                                    <label class="form-label">Subscription Management</label>
+                                    @if (Model.Subscription != null)
+                                    {
+                                        <div class="alert alert-success">
+                                            <i class="fas fa-credit-card"></i>
+                                            <strong>@Model.Subscription.Name</strong><br>
+                                            <small>@Model.Subscription.SeatsUsed/@Model.Subscription.SeatsAvailable seats used • $@Model.Subscription.CostPerSeatUsd per seat</small>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-light">
+                                            <i class="fas fa-plus-circle"></i>
+                                            No subscription configured for this service.
+                                        </div>
+                                    }
+                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#subscriptionModal">
+                                        <i class="fas fa-cog"></i> @(Model.Subscription != null ? "Manage" : "Configure") Subscription
+                                    </button>
                                 </div>
 
-                                <!-- GDPR Register -->
-                                <div class="form-group mb-3">
-                                    <label asp-for="GdprRegisterId" class="form-label">GDPR Register (Optional)</label>
-                                    <select asp-for="GdprRegisterId" class="form-select" asp-items="ViewBag.GdprRegisterId">
-                                        <option value="">-- No GDPR Register --</option>
-                                    </select>
-                                    <span asp-validation-for="GdprRegisterId" class="text-danger"></span>
-                                </div>
+                                <!-- GDPR Register - Managed through detailed compliance workflow -->
+                                <input type="hidden" asp-for="GdprRegisterId" />
+                                @if (Model.GdprRegister != null)
+                                {
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">GDPR Compliance</label>
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-shield-alt"></i>
+                                            GDPR compliance is configured for this service. 
+                                            <a asp-action="Details" asp-route-id="@Model.Id" class="alert-link">View details</a> to manage compliance settings.
+                                        </div>
+                                    </div>
+                                }
 
                                 <!-- Payment Method -->
                                 <div class="form-group mb-3">
@@ -286,7 +306,125 @@
     </div>
 </div>
 
+<!-- Subscription Management Modal -->
+<div class="modal fade" id="subscriptionModal" tabindex="-1" aria-labelledby="subscriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="subscriptionForm" asp-action="SetSubscription" method="post">
+                <input type="hidden" name="serviceId" value="@Model.Id" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="subscriptionModalLabel">
+                        <i class="fas fa-credit-card"></i> Subscription Management
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="subscriptionName" class="form-label">Subscription Name</label>
+                                <input type="text" class="form-control" id="subscriptionName" name="subscriptionName" 
+                                       value="@(Model.Subscription?.Name ?? "")" placeholder="Enter subscription name" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="costPerSeat" class="form-label">Cost per Seat (USD)</label>
+                                <input type="number" class="form-control" id="costPerSeat" name="costPerSeat" 
+                                       value="@(Model.Subscription?.CostPerSeatUsd ?? 0)" step="0.01" min="0" placeholder="0.00" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="seatsAvailable" class="form-label">Seats Available</label>
+                                <input type="number" class="form-control" id="seatsAvailable" name="seatsAvailable" 
+                                       value="@(Model.Subscription?.SeatsAvailable ?? 0)" min="0" placeholder="0" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="seatsUsed" class="form-label">Seats Used</label>
+                                <input type="number" class="form-control" id="seatsUsed" name="seatsUsed" 
+                                       value="@(Model.Subscription?.SeatsUsed ?? 0)" min="0" placeholder="0" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="termDurationMonths" class="form-label">Term Duration (Months)</label>
+                                <input type="number" class="form-control" id="termDurationMonths" name="termDurationMonths" 
+                                       value="@(Model.Subscription?.TermDuration.Days / 30 ?? 12)" min="1" placeholder="12" />
+                                <div class="form-text">Contract duration in months</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Monthly Cost</label>
+                                <div class="form-control-plaintext bg-light p-2 rounded">
+                                    <span id="monthlyCost">$0.00</span>
+                                    <small class="text-muted d-block">Seats Used × Cost per Seat</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.Subscription != null)
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="removeSubscription" name="removeSubscription" value="true" />
+                                    <label class="form-check-label text-danger" for="removeSubscription">
+                                        Remove subscription from this service
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Subscription
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script>
+        // Calculate monthly cost dynamically
+        function updateMonthlyCost() {
+            const seatsUsed = parseFloat(document.getElementById('seatsUsed').value) || 0;
+            const costPerSeat = parseFloat(document.getElementById('costPerSeat').value) || 0;
+            const monthlyCost = seatsUsed * costPerSeat;
+            document.getElementById('monthlyCost').textContent = '$' + monthlyCost.toFixed(2);
+        }
+
+        // Update monthly cost on input change
+        document.getElementById('seatsUsed').addEventListener('input', updateMonthlyCost);
+        document.getElementById('costPerSeat').addEventListener('input', updateMonthlyCost);
+        
+        // Initialize monthly cost on page load
+        document.addEventListener('DOMContentLoaded', updateMonthlyCost);
+        
+        // Validate seats used doesn't exceed seats available
+        document.getElementById('seatsUsed').addEventListener('input', function() {
+            const seatsUsed = parseInt(this.value) || 0;
+            const seatsAvailable = parseInt(document.getElementById('seatsAvailable').value) || 0;
+            
+            if (seatsUsed > seatsAvailable && seatsAvailable > 0) {
+                this.setCustomValidity('Seats used cannot exceed seats available');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
 }

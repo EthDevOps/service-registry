@@ -285,7 +285,10 @@ public class CatalogServiceController : Controller
             return NotFound();
         }
 
-        var catalogService = await _context.Services.FindAsync(id);
+        var catalogService = await _context.Services
+            .Include(s => s.Subscription)
+            .Include(s => s.GdprRegister)
+            .FirstOrDefaultAsync(s => s.Id == id);
         if (catalogService == null)
         {
             return NotFound();
@@ -295,6 +298,7 @@ public class CatalogServiceController : Controller
         ViewData["LifecycleId"] = new SelectList(_context.ServiceLifecycles, "Id", "CurrentStage", catalogService.LifecycleId);
         ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.SubscriptionId);
         ViewData["GdprRegisterId"] = new SelectList(_context.GdprRegisters, "Id", "Id", catalogService.GdprRegisterId);
+        ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "Id", "Name", catalogService.PaymentMethodId);
         
         return View(catalogService);
     }
@@ -636,6 +640,87 @@ public class CatalogServiceController : Controller
         
         TempData["Success"] = "GDPR compliance information has been successfully updated.";
         return RedirectToAction(nameof(Details), new { id = serviceId });
+    }
+
+    // POST: CatalogService/SetSubscription/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetSubscription(int serviceId, 
+        string subscriptionName,
+        double costPerSeat = 0,
+        int seatsAvailable = 0,
+        int seatsUsed = 0,
+        int termDurationMonths = 12,
+        bool removeSubscription = false)
+    {
+        var catalogService = await _context.Services
+            .Include(s => s.Subscription)
+            .FirstOrDefaultAsync(s => s.Id == serviceId);
+            
+        if (catalogService == null)
+        {
+            return NotFound();
+        }
+
+        if (removeSubscription)
+        {
+            // Remove existing subscription
+            if (catalogService.Subscription != null)
+            {
+                _context.Subscriptions.Remove(catalogService.Subscription);
+                catalogService.SubscriptionId = null;
+                catalogService.Subscription = null;
+                
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Subscription has been removed from this service.";
+            }
+        }
+        else if (!string.IsNullOrEmpty(subscriptionName))
+        {
+            // Validate input
+            if (seatsUsed > seatsAvailable && seatsAvailable > 0)
+            {
+                TempData["Error"] = "Seats used cannot exceed seats available.";
+                return RedirectToAction(nameof(Edit), new { id = serviceId });
+            }
+
+            // Create or update subscription
+            if (catalogService.Subscription == null)
+            {
+                // Create new subscription
+                var subscription = new ServiceSubscription
+                {
+                    Name = subscriptionName,
+                    CostPerSeatUsd = costPerSeat,
+                    SeatsAvailable = seatsAvailable,
+                    SeatsUsed = seatsUsed,
+                    TermDuration = TimeSpan.FromDays(termDurationMonths * 30)
+                };
+
+                _context.Subscriptions.Add(subscription);
+                await _context.SaveChangesAsync();
+                
+                catalogService.SubscriptionId = subscription.Id;
+            }
+            else
+            {
+                // Update existing subscription
+                catalogService.Subscription.Name = subscriptionName;
+                catalogService.Subscription.CostPerSeatUsd = costPerSeat;
+                catalogService.Subscription.SeatsAvailable = seatsAvailable;
+                catalogService.Subscription.SeatsUsed = seatsUsed;
+                catalogService.Subscription.TermDuration = TimeSpan.FromDays(termDurationMonths * 30);
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Subscription information has been successfully updated.";
+        }
+        else
+        {
+            TempData["Error"] = "Subscription name is required.";
+        }
+        
+        return RedirectToAction(nameof(Edit), new { id = serviceId });
     }
 
     private bool CatalogServiceExists(int id)
