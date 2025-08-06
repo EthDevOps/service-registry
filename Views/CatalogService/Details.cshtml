@@ -173,461 +173,519 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Vendor Information -->
-                    @if (!string.IsNullOrEmpty(Model.VendorName))
-                    {
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-building"></i> Vendor Information
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <dl class="row">
-                                            <dt class="col-sm-4">Vendor Name:</dt>
-                                            <dd class="col-sm-8">@Model.VendorName</dd>
-                                            
-                                            <dt class="col-sm-4">Website:</dt>
-                                            <dd class="col-sm-8">
-                                                <a href="@Model.VendorWebsiteUrl" target="_blank" class="btn btn-outline-primary btn-sm">
-                                                    <i class="fas fa-external-link-alt"></i> Visit Website
-                                                </a>
-                                            </dd>
-                                            
-                                            @if (!string.IsNullOrEmpty(Model.VendorCountry) || !string.IsNullOrEmpty(Model.VendorCity))
-                                            {
-                                                <dt class="col-sm-4">Location:</dt>
-                                                <dd class="col-sm-8">@Model.VendorCity, @Model.VendorCountry</dd>
-                                            }
-                                            
-                                        </dl>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- License Information -->
-                    @if (Model.License != null)
-                    {
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-certificate"></i> License Information
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <dl class="row">
-                                    <dt class="col-sm-3">License Name:</dt>
-                                    <dd class="col-sm-9">
-                                        <span class="badge bg-info me-2">@Model.License.Abbreviation</span>
-                                        @Model.License.Name
-                                    </dd>
-                                    
-                                    <dt class="col-sm-3">License URL:</dt>
-                                    <dd class="col-sm-9">
-                                        <a href="@Model.License.LicenseUrl" target="_blank" class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-external-link-alt"></i> View License
-                                        </a>
-                                    </dd>
-                                </dl>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Hosting Information -->
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="card-title mb-0">
-                                <i class="fas fa-server"></i> Hosting Information
+                                <i class="fas fa-info-circle"></i> Description 
                             </h5>
                         </div>
-                        <div class="card-body">
-                            <dl class="row">
-                                <dt class="col-sm-3">Hosting Type:</dt>
-                                <dd class="col-sm-9">
-                                    <span class="badge @(Model.HostingType == CatalogHostingType.SaaS ? "bg-success" : "bg-warning")">
-                                        @GetHostingTypeLabel(Model.HostingType)
-                                    </span>
-                                </dd>
-                                
-                                <dt class="col-sm-3">Hosting Country:</dt>
-                                <dd class="col-sm-9">@Model.HostingCountry</dd>
-                                
-                                @if (!string.IsNullOrEmpty(Model.SaasRegionReference))
-                                {
-                                    <dt class="col-sm-3">SaaS Region:</dt>
-                                    <dd class="col-sm-9">@Model.SaasRegionReference</dd>
-                                }
-                            </dl>
-                            
-                            @if (Model.OnpremiseHosts != null && Model.OnpremiseHosts.Any())
+                        <div class="card-body" style="white-space: pre-line;">
+                            @Model.Description
+                        </div>
+                    </div>
+
+                            <!-- Vendor Information -->
+                            @if (!string.IsNullOrEmpty(Model.VendorName))
                             {
-                                <h6 class="mt-3">On-Premise Hosts</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Cloud Provider</th>
-                                                <th>Region</th>
-                                                <th>Netbox Reference</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var host in Model.OnpremiseHosts)
-                                            {
-                                                <tr>
-                                                    <td>@host.CloudProvider</td>
-                                                    <td>@host.Region</td>
-                                                    <td>
-                                                        <a href="@host.NetboxReferenceUrl" target="_blank" class="btn btn-outline-info btn-sm">
-                                                            <i class="fas fa-external-link-alt"></i> View
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-building"></i> Vendor Information
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Vendor Name:</dt>
+                                                    <dd class="col-sm-8">@Model.VendorName</dd>
+
+                                                    <dt class="col-sm-4">Website:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <a href="@Model.VendorWebsiteUrl" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                            <i class="fas fa-external-link-alt"></i> Visit Website
                                                         </a>
-                                                    </td>
+                                                    </dd>
+
+                                                    @if (!string.IsNullOrEmpty(Model.VendorCountry) || !string.IsNullOrEmpty(Model.VendorCity))
+                                                    {
+                                                        <dt class="col-sm-4">Location:</dt>
+                                                        <dd class="col-sm-8">@Model.VendorCity, @Model.VendorCountry</dd>
+                                                    }
+
+                                                </dl>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- License Information -->
+                            @if (Model.License != null)
+                            {
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-certificate"></i> License Information
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <dl class="row">
+                                            <dt class="col-sm-3">License Name:</dt>
+                                            <dd class="col-sm-9">
+                                                <span class="badge bg-info me-2">@Model.License.Abbreviation</span>
+                                                @Model.License.Name
+                                            </dd>
+
+                                            <dt class="col-sm-3">License URL:</dt>
+                                            <dd class="col-sm-9">
+                                                <a href="@Model.License.LicenseUrl" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                                    <i class="fas fa-external-link-alt"></i> View License
+                                                </a>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Hosting Information -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-server"></i> Hosting Information
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row">
+                                        <dt class="col-sm-3">Hosting Type:</dt>
+                                        <dd class="col-sm-9">
+                                            <span class="badge @(Model.HostingType == CatalogHostingType.SaaS ? "bg-success" : "bg-warning")">
+                                                @GetHostingTypeLabel(Model.HostingType)
+                                            </span>
+                                        </dd>
+
+                                        <dt class="col-sm-3">Hosting Country:</dt>
+                                        <dd class="col-sm-9">@Model.HostingCountry</dd>
+
+                                        @if (!string.IsNullOrEmpty(Model.SaasRegionReference))
+                                        {
+                                            <dt class="col-sm-3">SaaS Region:</dt>
+                                            <dd class="col-sm-9">@Model.SaasRegionReference</dd>
+                                        }
+                                    </dl>
+
+                                    @if (Model.OnpremiseHosts != null && Model.OnpremiseHosts.Any())
+                                    {
+                                        <h6 class="mt-3">On-Premise Hosts</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                <tr>
+                                                    <th>Cloud Provider</th>
+                                                    <th>Region</th>
+                                                    <th>Netbox Reference</th>
                                                 </tr>
-                                            }
-                                        </tbody>
-                                    </table>
+                                                </thead>
+                                                <tbody>
+                                                @foreach (var host in Model.OnpremiseHosts)
+                                                {
+                                                    <tr>
+                                                        <td>@host.CloudProvider</td>
+                                                        <td>@host.Region</td>
+                                                        <td>
+                                                            <a href="@host.NetboxReferenceUrl" target="_blank" class="btn btn-outline-info btn-sm">
+                                                                <i class="fas fa-external-link-alt"></i> View
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
                                 </div>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- Subscription Information -->
-                    @if (Model.Subscription != null)
-                    {
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-credit-card"></i> Subscription Information
-                                </h5>
                             </div>
-                            <div class="card-body">
-                                <dl class="row">
-                                    <dt class="col-sm-3">Subscription:</dt>
-                                    <dd class="col-sm-9">@Model.Subscription.Name</dd>
-                                    
-                                    <dt class="col-sm-3">Seats:</dt>
-                                    <dd class="col-sm-9">
-                                        <div class="progress" style="height: 20px;">
-                                            @{
-                                                var usagePercentage = Model.Subscription.SeatsAvailable > 0 
-                                                    ? (double)Model.Subscription.SeatsUsed / Model.Subscription.SeatsAvailable * 100 
-                                                    : 0;
-                                                var progressClass = usagePercentage < 70 ? "bg-success" : usagePercentage < 90 ? "bg-warning" : "bg-danger";
+
+                            <!-- Subscription Information -->
+                            @if (Model.Subscription != null)
+                            {
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-credit-card"></i> Subscription Information
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <dl class="row">
+                                            <dt class="col-sm-3">Subscription:</dt>
+                                            <dd class="col-sm-9">@Model.Subscription.Name</dd>
+
+                                            <dt class="col-sm-3">Seats:</dt>
+                                            <dd class="col-sm-9">
+                                                <div class="progress" style="height: 20px;">
+                                                    @{
+                                                        var usagePercentage = Model.Subscription.SeatsAvailable > 0
+                                                            ? (double)Model.Subscription.SeatsUsed / Model.Subscription.SeatsAvailable * 100
+                                                            : 0;
+                                                        var progressClass = usagePercentage < 70 ? "bg-success" : usagePercentage < 90 ? "bg-warning" : "bg-danger";
+                                                    }
+                                                    <div class="progress-bar @progressClass" role="progressbar"
+                                                         style="width: @usagePercentage%"
+                                                         aria-valuenow="@Model.Subscription.SeatsUsed"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="@Model.Subscription.SeatsAvailable">
+                                                        @Model.Subscription.SeatsUsed / @Model.Subscription.SeatsAvailable seats
+                                                    </div>
+                                                </div>
+                                            </dd>
+
+                                            <dt class="col-sm-3">Cost per Seat:</dt>
+                                            <dd class="col-sm-9">$@Model.Subscription.CostPerSeatUsd USD</dd>
+
+                                            <dt class="col-sm-3">Term Duration:</dt>
+                                            <dd class="col-sm-9">@Model.Subscription.TermDuration.Days days</dd>
+
+                                            <dt class="col-sm-3">Total Cost:</dt>
+                                            <dd class="col-sm-9">
+                                                <strong>$@(Model.Subscription.SeatsUsed * Model.Subscription.CostPerSeatUsd) USD</strong>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Payment Method Information -->
+                            @if (Model.PaymentMethod != null)
+                            {
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-credit-card"></i> Payment Method
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <dl class="row">
+                                            <dt class="col-sm-3">Payment Method:</dt>
+                                            <dd class="col-sm-9">@Model.PaymentMethod.Name</dd>
+
+                                            <dt class="col-sm-3">Type:</dt>
+                                            <dd class="col-sm-9">
+                                                <span class="badge bg-info">@Model.PaymentMethod.Type</span>
+                                            </dd>
+
+                                            <dt class="col-sm-3">Cost Center:</dt>
+                                            <dd class="col-sm-9">@Model.PaymentMethod.CostCenter.Name</dd>
+
+                                            @if (!string.IsNullOrEmpty(Model.PaymentMethod.Description))
+                                            {
+                                                <dt class="col-sm-3">Description:</dt>
+                                                <dd class="col-sm-9">@Model.PaymentMethod.Description</dd>
                                             }
-                                            <div class="progress-bar @progressClass" role="progressbar" 
-                                                 style="width: @usagePercentage%" 
-                                                 aria-valuenow="@Model.Subscription.SeatsUsed" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="@Model.Subscription.SeatsAvailable">
-                                                @Model.Subscription.SeatsUsed / @Model.Subscription.SeatsAvailable seats
+
+                                            @if (Model.PaymentMethod.OutstandingBalance.HasValue && Model.PaymentMethod.OutstandingBalance > 0)
+                                            {
+                                                <dt class="col-sm-3">Outstanding Balance:</dt>
+                                                <dd class="col-sm-9">
+                                                    <span class="text-warning fw-bold">$@Model.PaymentMethod.OutstandingBalance USD</span>
+                                                </dd>
+                                            }
+
+                                            @if (Model.PaymentMethod.NextBillingDate.HasValue)
+                                            {
+                                                <dt class="col-sm-3">Next Billing:</dt>
+                                                <dd class="col-sm-9">@Model.PaymentMethod.NextBillingDate.Value.ToString("MMM dd, yyyy")</dd>
+                                            }
+                                        </dl>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- GDPR Compliance -->
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-shield-alt"></i> GDPR Compliance
+                                    </h5>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#gdprModal">
+                                        <i class="fas fa-shield-alt"></i> @(Model.GdprRegister != null ? "Update" : "Set") GDPR
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @if (Model.GdprRegister != null)
+                                    {
+                                        <!-- Overview Section -->
+                                        <div class="row mb-4">
+                                            <div class="col-md-8">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                                    <span class="fw-bold">GDPR Compliance Configured</span>
+                                                </div>
+                                                @if (Model.GdprRegister.LastGdprAssessment.HasValue)
+                                                {
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-clock"></i> Last Assessment: @Model.GdprRegister.LastGdprAssessment.Value.ToString("MMM dd, yyyy")
+                                                    </small>
+                                                }
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                @if (Model.GdprRegister.HasProcessingAgreement)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-file-contract"></i> Article 28 Agreement
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-exclamation-triangle"></i> Agreement Missing
+                                                    </span>
+                                                }
                                             </div>
                                         </div>
-                                    </dd>
-                                    
-                                    <dt class="col-sm-3">Cost per Seat:</dt>
-                                    <dd class="col-sm-9">$@Model.Subscription.CostPerSeatUsd USD</dd>
-                                    
-                                    <dt class="col-sm-3">Term Duration:</dt>
-                                    <dd class="col-sm-9">@Model.Subscription.TermDuration.Days days</dd>
-                                    
-                                    <dt class="col-sm-3">Total Cost:</dt>
-                                    <dd class="col-sm-9">
-                                        <strong>$@(Model.Subscription.SeatsUsed * Model.Subscription.CostPerSeatUsd) USD</strong>
-                                    </dd>
-                                </dl>
+
+                                        <!-- Data Processing Information -->
+                                        <div class="row mb-4">
+                                            <div class="col-md-6">
+                                                <h6 class="text-muted mb-3">
+                                                    <i class="fas fa-database me-1"></i> Data Processing
+                                                </h6>
+
+                                                <div class="mb-3">
+                                                    <small class="text-muted d-block">Data Categories</small>
+                                                    @if (Model.GdprRegister.DataCategories.Any())
+                                                    {
+                                                        <div class="mt-1">
+                                                            @foreach (var category in Model.GdprRegister.DataCategories)
+                                                            {
+                                                                <span class="badge bg-info me-1 mb-1">@GetDataCategoryLabel(category)</span>
+                                                            }
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Not specified</span>
+                                                    }
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <small class="text-muted d-block">Processing Purposes</small>
+                                                    @if (Model.GdprRegister.ProcessingPurposes.Any())
+                                                    {
+                                                        <div class="mt-1">
+                                                            @foreach (var purpose in Model.GdprRegister.ProcessingPurposes.Take(3))
+                                                            {
+                                                                <span class="badge bg-primary me-1 mb-1">@GetProcessingPurposeLabel(purpose)</span>
+                                                            }
+                                                            @if (Model.GdprRegister.ProcessingPurposes.Count > 3)
+                                                            {
+                                                                <span class="badge bg-light text-dark">+@(Model.GdprRegister.ProcessingPurposes.Count - 3) more</span>
+                                                            }
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Not specified</span>
+                                                    }
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <small class="text-muted d-block">Processing Frequency</small>
+                                                    <span class="badge bg-warning">@GetProcessingFrequencyLabel(Model.GdprRegister.ProcessingFrequency)</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <h6 class="text-muted mb-3">
+                                                    <i class="fas fa-user-shield me-1"></i> Personal Data
+                                                </h6>
+
+                                                <div class="mb-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <small class="text-muted">Employee PII</small>
+                                                        <span class="badge @(Model.GdprRegister.ProcessesEmployeePii ? "bg-warning" : "bg-success")">
+                                                            @(Model.GdprRegister.ProcessesEmployeePii ? "Yes" : "No")
+                                                        </span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <small class="text-muted">External User PII</small>
+                                                        <span class="badge @(Model.GdprRegister.ProcessesExternalUserPii ? "bg-warning" : "bg-success")">
+                                                            @(Model.GdprRegister.ProcessesExternalUserPii ? "Yes" : "No")
+                                                        </span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <small class="text-muted">Sensitive Data</small>
+                                                        <span class="badge @(Model.GdprRegister.ProcessesSensitiveData ? "bg-danger" : "bg-success")">
+                                                            @(Model.GdprRegister.ProcessesSensitiveData ? "Yes" : "No")
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                @if (Model.GdprRegister.ProcessesSensitiveData && Model.GdprRegister.SensitiveDataTypes.Any())
+                                                {
+                                                    <div class="mb-3">
+                                                        <small class="text-muted d-block">Sensitive Data Types</small>
+                                                        <div class="mt-1">
+                                                            @foreach (var dataType in Model.GdprRegister.SensitiveDataTypes.Take(2))
+                                                            {
+                                                                <span class="badge bg-danger me-1 mb-1">@dataType</span>
+                                                            }
+                                                            @if (Model.GdprRegister.SensitiveDataTypes.Count > 2)
+                                                            {
+                                                                <span class="badge bg-light text-dark">+@(Model.GdprRegister.SensitiveDataTypes.Count - 2) more</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- Compliance & Security -->
+                                        <div class="row mb-4">
+                                            <div class="col-md-6">
+                                                <h6 class="text-muted mb-3">
+                                                    <i class="fas fa-shield-alt me-1"></i> Security Measures
+                                                </h6>
+
+                                                @if (Model.GdprRegister.SecurityMeasures.Any())
+                                                {
+                                                    <div class="mb-3">
+                                                        @foreach (var measure in Model.GdprRegister.SecurityMeasures.Take(4))
+                                                        {
+                                                            <span class="badge bg-secondary me-1 mb-1">@GetSecurityMeasureLabel(measure)</span>
+                                                        }
+                                                        @if (Model.GdprRegister.SecurityMeasures.Count > 4)
+                                                        {
+                                                            <span class="badge bg-light text-dark">+@(Model.GdprRegister.SecurityMeasures.Count - 4) more</span>
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Not specified</span>
+                                                }
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <h6 class="text-muted mb-3">
+                                                    <i class="fas fa-balance-scale me-1"></i> Data Subject Rights
+                                                </h6>
+
+                                                <div class="mb-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <small class="text-muted">Data Portability</small>
+                                                        <span class="badge @(Model.GdprRegister.SupportsDataPortability ? "bg-success" : "bg-secondary")">
+                                                            @(Model.GdprRegister.SupportsDataPortability ? "Supported" : "Not Supported")
+                                                        </span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <small class="text-muted">Data Deletion</small>
+                                                        <span class="badge @(Model.GdprRegister.SupportsDataDeletion ? "bg-success" : "bg-secondary")">
+                                                            @(Model.GdprRegister.SupportsDataDeletion ? "Supported" : "Not Supported")
+                                                        </span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <small class="text-muted">Data Correction</small>
+                                                        <span class="badge @(Model.GdprRegister.SupportsDataCorrection ? "bg-success" : "bg-secondary")">
+                                                            @(Model.GdprRegister.SupportsDataCorrection ? "Supported" : "Not Supported")
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Stakeholders & Agreements -->
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6 class="text-muted mb-3">
+                                                    <i class="fas fa-users me-1"></i> Stakeholders
+                                                </h6>
+
+                                                @if (Model.GdprRegister.Controller != null)
+                                                {
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">Data Controller</small>
+                                                        <span class="fw-bold">@Model.GdprRegister.Controller.Name</span>
+                                                        @if (!string.IsNullOrEmpty(Model.GdprRegister.Controller.Email))
+                                                        {
+                                                            <br>
+                                                            <small class="text-muted">@Model.GdprRegister.Controller.Email</small>
+                                                        }
+                                                    </div>
+                                                }
+
+                                                @if (Model.GdprRegister.DpoOrganisation != null)
+                                                {
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">DPO Organisation</small>
+                                                        <span class="fw-bold">@Model.GdprRegister.DpoOrganisation.Name</span>
+                                                        @if (!string.IsNullOrEmpty(Model.GdprRegister.DpoOrganisation.Email))
+                                                        {
+                                                            <br>
+                                                            <small class="text-muted">@Model.GdprRegister.DpoOrganisation.Email</small>
+                                                        }
+                                                    </div>
+                                                }
+
+                                                @if (!string.IsNullOrEmpty(Model.GdprRegister.DataProtectionOfficerContact))
+                                                {
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">DPO Contact</small>
+                                                        <span>@Model.GdprRegister.DataProtectionOfficerContact</span>
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <h6 class="text-muted mb-3">
+                                                    <i class="fas fa-file-contract me-1"></i> Data Retention
+                                                </h6>
+
+                                                @if (Model.GdprRegister.DataRetentionPeriod.HasValue)
+                                                {
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">Retention Period</small>
+                                                        <span class="badge bg-info">@Model.GdprRegister.DataRetentionPeriod.Value.Days days</span>
+                                                    </div>
+                                                }
+
+                                                @if (!string.IsNullOrEmpty(Model.GdprRegister.DataDeletionProcess))
+                                                {
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">Deletion Process</small>
+                                                        <span class="small">@Model.GdprRegister.DataDeletionProcess</span>
+                                                    </div>
+                                                }
+
+                                                @if (Model.GdprRegister.ProcessingAgreementDate.HasValue)
+                                                {
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">Agreement Date</small>
+                                                        <span>@Model.GdprRegister.ProcessingAgreementDate.Value.ToString("MMM dd, yyyy")</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        @if (!string.IsNullOrEmpty(Model.GdprRegister.ComplianceNotes))
+                                        {
+                                            <div class="mt-3 pt-3 border-top">
+                                                <h6 class="text-muted mb-2">
+                                                    <i class="fas fa-sticky-note me-1"></i> Compliance Notes
+                                                </h6>
+                                                <p class="small text-muted mb-0">@Model.GdprRegister.ComplianceNotes</p>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted mb-0">
+                                            <i class="fas fa-info-circle"></i> No GDPR compliance information recorded.
+                                            Click "Set GDPR" to configure compliance settings.
+                                        </p>
+                                    }
+                                </div>
                             </div>
                         </div>
-                    }
-
-                    <!-- GDPR Compliance -->
-                    <div class="card mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-shield-alt"></i> GDPR Compliance
-                            </h5>
-                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#gdprModal">
-                                <i class="fas fa-shield-alt"></i> @(Model.GdprRegister != null ? "Update" : "Set") GDPR
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            @if (Model.GdprRegister != null)
-                            {
-                                <!-- Overview Section -->
-                                <div class="row mb-4">
-                                    <div class="col-md-8">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <i class="fas fa-check-circle text-success me-2"></i>
-                                            <span class="fw-bold">GDPR Compliance Configured</span>
-                                        </div>
-                                        @if (Model.GdprRegister.LastGdprAssessment.HasValue)
-                                        {
-                                            <small class="text-muted">
-                                                <i class="fas fa-clock"></i> Last Assessment: @Model.GdprRegister.LastGdprAssessment.Value.ToString("MMM dd, yyyy")
-                                            </small>
-                                        }
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        @if (Model.GdprRegister.HasProcessingAgreement)
-                                        {
-                                            <span class="badge bg-success">
-                                                <i class="fas fa-file-contract"></i> Article 28 Agreement
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-warning">
-                                                <i class="fas fa-exclamation-triangle"></i> Agreement Missing
-                                            </span>
-                                        }
-                                    </div>
-                                </div>
-
-                                <!-- Data Processing Information -->
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <h6 class="text-muted mb-3">
-                                            <i class="fas fa-database me-1"></i> Data Processing
-                                        </h6>
-                                        
-                                        <div class="mb-3">
-                                            <small class="text-muted d-block">Data Categories</small>
-                                            @if (Model.GdprRegister.DataCategories.Any())
-                                            {
-                                                <div class="mt-1">
-                                                    @foreach (var category in Model.GdprRegister.DataCategories)
-                                                    {
-                                                        <span class="badge bg-info me-1 mb-1">@GetDataCategoryLabel(category)</span>
-                                                    }
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted">Not specified</span>
-                                            }
-                                        </div>
-                                        
-                                        <div class="mb-3">
-                                            <small class="text-muted d-block">Processing Purposes</small>
-                                            @if (Model.GdprRegister.ProcessingPurposes.Any())
-                                            {
-                                                <div class="mt-1">
-                                                    @foreach (var purpose in Model.GdprRegister.ProcessingPurposes.Take(3))
-                                                    {
-                                                        <span class="badge bg-primary me-1 mb-1">@GetProcessingPurposeLabel(purpose)</span>
-                                                    }
-                                                    @if (Model.GdprRegister.ProcessingPurposes.Count > 3)
-                                                    {
-                                                        <span class="badge bg-light text-dark">+@(Model.GdprRegister.ProcessingPurposes.Count - 3) more</span>
-                                                    }
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted">Not specified</span>
-                                            }
-                                        </div>
-                                        
-                                        <div class="mb-3">
-                                            <small class="text-muted d-block">Processing Frequency</small>
-                                            <span class="badge bg-warning">@GetProcessingFrequencyLabel(Model.GdprRegister.ProcessingFrequency)</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <h6 class="text-muted mb-3">
-                                            <i class="fas fa-user-shield me-1"></i> Personal Data
-                                        </h6>
-                                        
-                                        <div class="mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <small class="text-muted">Employee PII</small>
-                                                <span class="badge @(Model.GdprRegister.ProcessesEmployeePii ? "bg-warning" : "bg-success")">
-                                                    @(Model.GdprRegister.ProcessesEmployeePii ? "Yes" : "No")
-                                                </span>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <small class="text-muted">External User PII</small>
-                                                <span class="badge @(Model.GdprRegister.ProcessesExternalUserPii ? "bg-warning" : "bg-success")">
-                                                    @(Model.GdprRegister.ProcessesExternalUserPii ? "Yes" : "No")
-                                                </span>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">Sensitive Data</small>
-                                                <span class="badge @(Model.GdprRegister.ProcessesSensitiveData ? "bg-danger" : "bg-success")">
-                                                    @(Model.GdprRegister.ProcessesSensitiveData ? "Yes" : "No")
-                                                </span>
-                                            </div>
-                                        </div>
-                                        
-                                        @if (Model.GdprRegister.ProcessesSensitiveData && Model.GdprRegister.SensitiveDataTypes.Any())
-                                        {
-                                            <div class="mb-3">
-                                                <small class="text-muted d-block">Sensitive Data Types</small>
-                                                <div class="mt-1">
-                                                    @foreach (var dataType in Model.GdprRegister.SensitiveDataTypes.Take(2))
-                                                    {
-                                                        <span class="badge bg-danger me-1 mb-1">@dataType</span>
-                                                    }
-                                                    @if (Model.GdprRegister.SensitiveDataTypes.Count > 2)
-                                                    {
-                                                        <span class="badge bg-light text-dark">+@(Model.GdprRegister.SensitiveDataTypes.Count - 2) more</span>
-                                                    }
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-
-                                <!-- Compliance & Security -->
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <h6 class="text-muted mb-3">
-                                            <i class="fas fa-shield-alt me-1"></i> Security Measures
-                                        </h6>
-                                        
-                                        @if (Model.GdprRegister.SecurityMeasures.Any())
-                                        {
-                                            <div class="mb-3">
-                                                @foreach (var measure in Model.GdprRegister.SecurityMeasures.Take(4))
-                                                {
-                                                    <span class="badge bg-secondary me-1 mb-1">@GetSecurityMeasureLabel(measure)</span>
-                                                }
-                                                @if (Model.GdprRegister.SecurityMeasures.Count > 4)
-                                                {
-                                                    <span class="badge bg-light text-dark">+@(Model.GdprRegister.SecurityMeasures.Count - 4) more</span>
-                                                }
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">Not specified</span>
-                                        }
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <h6 class="text-muted mb-3">
-                                            <i class="fas fa-balance-scale me-1"></i> Data Subject Rights
-                                        </h6>
-                                        
-                                        <div class="mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <small class="text-muted">Data Portability</small>
-                                                <span class="badge @(Model.GdprRegister.SupportsDataPortability ? "bg-success" : "bg-secondary")">
-                                                    @(Model.GdprRegister.SupportsDataPortability ? "Supported" : "Not Supported")
-                                                </span>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <small class="text-muted">Data Deletion</small>
-                                                <span class="badge @(Model.GdprRegister.SupportsDataDeletion ? "bg-success" : "bg-secondary")">
-                                                    @(Model.GdprRegister.SupportsDataDeletion ? "Supported" : "Not Supported")
-                                                </span>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">Data Correction</small>
-                                                <span class="badge @(Model.GdprRegister.SupportsDataCorrection ? "bg-success" : "bg-secondary")">
-                                                    @(Model.GdprRegister.SupportsDataCorrection ? "Supported" : "Not Supported")
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Stakeholders & Agreements -->
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6 class="text-muted mb-3">
-                                            <i class="fas fa-users me-1"></i> Stakeholders
-                                        </h6>
-                                        
-                                        @if (Model.GdprRegister.Controller != null)
-                                        {
-                                            <div class="mb-2">
-                                                <small class="text-muted d-block">Data Controller</small>
-                                                <span class="fw-bold">@Model.GdprRegister.Controller.Name</span>
-                                                @if (!string.IsNullOrEmpty(Model.GdprRegister.Controller.Email))
-                                                {
-                                                    <br><small class="text-muted">@Model.GdprRegister.Controller.Email</small>
-                                                }
-                                            </div>
-                                        }
-                                        
-                                        @if (Model.GdprRegister.DpoOrganisation != null)
-                                        {
-                                            <div class="mb-2">
-                                                <small class="text-muted d-block">DPO Organisation</small>
-                                                <span class="fw-bold">@Model.GdprRegister.DpoOrganisation.Name</span>
-                                                @if (!string.IsNullOrEmpty(Model.GdprRegister.DpoOrganisation.Email))
-                                                {
-                                                    <br><small class="text-muted">@Model.GdprRegister.DpoOrganisation.Email</small>
-                                                }
-                                            </div>
-                                        }
-                                        
-                                        @if (!string.IsNullOrEmpty(Model.GdprRegister.DataProtectionOfficerContact))
-                                        {
-                                            <div class="mb-2">
-                                                <small class="text-muted d-block">DPO Contact</small>
-                                                <span>@Model.GdprRegister.DataProtectionOfficerContact</span>
-                                            </div>
-                                        }
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <h6 class="text-muted mb-3">
-                                            <i class="fas fa-file-contract me-1"></i> Data Retention
-                                        </h6>
-                                        
-                                        @if (Model.GdprRegister.DataRetentionPeriod.HasValue)
-                                        {
-                                            <div class="mb-2">
-                                                <small class="text-muted d-block">Retention Period</small>
-                                                <span class="badge bg-info">@Model.GdprRegister.DataRetentionPeriod.Value.Days days</span>
-                                            </div>
-                                        }
-                                        
-                                        @if (!string.IsNullOrEmpty(Model.GdprRegister.DataDeletionProcess))
-                                        {
-                                            <div class="mb-2">
-                                                <small class="text-muted d-block">Deletion Process</small>
-                                                <span class="small">@Model.GdprRegister.DataDeletionProcess</span>
-                                            </div>
-                                        }
-                                        
-                                        @if (Model.GdprRegister.ProcessingAgreementDate.HasValue)
-                                        {
-                                            <div class="mb-2">
-                                                <small class="text-muted d-block">Agreement Date</small>
-                                                <span>@Model.GdprRegister.ProcessingAgreementDate.Value.ToString("MMM dd, yyyy")</span>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-
-                                @if (!string.IsNullOrEmpty(Model.GdprRegister.ComplianceNotes))
-                                {
-                                    <div class="mt-3 pt-3 border-top">
-                                        <h6 class="text-muted mb-2">
-                                            <i class="fas fa-sticky-note me-1"></i> Compliance Notes
-                                        </h6>
-                                        <p class="small text-muted mb-0">@Model.GdprRegister.ComplianceNotes</p>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <p class="text-muted mb-0">
-                                    <i class="fas fa-info-circle"></i> No GDPR compliance information recorded. 
-                                    Click "Set GDPR" to configure compliance settings.
-                                </p>
-                            }
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Sidebar -->
                 <div class="col-lg-4">

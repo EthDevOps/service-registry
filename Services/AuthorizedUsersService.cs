@@ -29,5 +29,26 @@ namespace QuokkaServiceRegistry.Services
         {
             return _authorizedUsers.ToList();
         }
+
+        public void AddUser(string email)
+        {
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                _authorizedUsers.Add(email.Trim().ToLowerInvariant());
+            }
+        }
+
+        public void RemoveUser(string email)
+        {
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                _authorizedUsers.Remove(email.Trim().ToLowerInvariant());
+            }
+        }
+
+        public string GetConfigurationString()
+        {
+            return string.Join(",", _authorizedUsers);
+        }
     }
 }

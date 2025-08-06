@@ -84,6 +84,9 @@
                                         Name
                                     </th>
                                     <th>
+                                        Visibility
+                                    </th>
+                                    <th>
                                         Vendor
                                     </th>
                                     <th>
@@ -104,6 +107,9 @@
                                     <th>
                                         Subscription
                                     </th>
+                                    <th>
+                                        Payment Method
+                                    </th>
                                     <th width="200">Actions</th>
                                 </tr>
                             </thead>
@@ -115,7 +121,21 @@
                                             <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.Vendor.Name)
+                                            @if (item.IsPublic)
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-globe"></i> Public
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-lock"></i> Private
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.VendorName)
                                         </td>
                                         <td>
                                             <span class="badge bg-info">
@@ -172,6 +192,19 @@
                                                 <span class="badge bg-success">
                                                     @item.Subscription.SeatsUsed/@item.Subscription.SeatsAvailable seats
                                                 </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">N/A</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.PaymentMethod != null)
+                                            {
+                                                <span class="badge bg-primary">
+                                                    @item.PaymentMethod.Name
+                                                </span>
+                                                <br><small class="text-muted">@item.PaymentMethod.Type</small>
                                             }
                                             else
                                             {

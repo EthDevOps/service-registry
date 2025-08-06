@@ -86,5 +86,5 @@ public class PaymentMethod
     public DateTime? NextBillingDate { get; set; }
     
     // Navigation properties
-    public List<CatalogVendor> Vendors { get; set; } = new();
+    public List<CatalogService> Services { get; set; } = new();
 }

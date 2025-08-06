@@ -100,13 +100,13 @@
                                             </td>
                                             <td>@item.CostCenter?.Name</td>
                                             <td>
-                                                @if (item.Vendors.Any())
+                                                @if (item.Services.Any())
                                                 {
-                                                    <span class="badge bg-info">@item.Vendors.Count vendors</span>
+                                                    <span class="badge bg-info">@item.Services.Count services</span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">No vendors</span>
+                                                    <span class="text-muted">No services</span>
                                                 }
                                             </td>
                                             <td>

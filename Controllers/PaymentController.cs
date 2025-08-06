@@ -22,7 +22,7 @@ public class PaymentController : Controller
     {
         var paymentMethods = await _context.PaymentMethods
             .Include(p => p.CostCenter)
-            .Include(p => p.Vendors)
+            .Include(p => p.Services)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
             
@@ -39,7 +39,7 @@ public class PaymentController : Controller
 
         var paymentMethod = await _context.PaymentMethods
             .Include(p => p.CostCenter)
-            .Include(p => p.Vendors)
+            .Include(p => p.Services)
             .FirstOrDefaultAsync(m => m.Id == id);
             
         if (paymentMethod == null)
@@ -149,7 +149,7 @@ public class PaymentController : Controller
 
         var paymentMethod = await _context.PaymentMethods
             .Include(p => p.CostCenter)
-            .Include(p => p.Vendors)
+            .Include(p => p.Services)
             .FirstOrDefaultAsync(m => m.Id == id);
             
         if (paymentMethod == null)
@@ -166,14 +166,14 @@ public class PaymentController : Controller
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var paymentMethod = await _context.PaymentMethods
-            .Include(p => p.Vendors)
+            .Include(p => p.Services)
             .FirstOrDefaultAsync(p => p.Id == id);
             
         if (paymentMethod != null)
         {
-            if (paymentMethod.Vendors.Any())
+            if (paymentMethod.Services.Any())
             {
-                TempData["Error"] = "Cannot delete payment method that is still linked to vendors.";
+                TempData["Error"] = "Cannot delete payment method that is still linked to services.";
                 return RedirectToAction(nameof(Delete), new { id });
             }
             

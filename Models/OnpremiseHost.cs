@@ -3,7 +3,7 @@ namespace QuokkaServiceRegistry.Models;
 public class OnpremiseHost
 {
     public int Id { get; set; }
-    public CatalogVendor CloudProvider { get; set; } = null!;
+    public string CloudProvider { get; set; } = string.Empty;
     public string Region { get; set; } = string.Empty;
     public string NetboxReferenceUrl { get; set; } = string.Empty;
     

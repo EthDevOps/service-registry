@@ -20,6 +20,15 @@ public class CatalogServiceController : Controller
     // GET: CatalogService
     public async Task<IActionResult> Index(string? hostingType, string? hostingCountry, string? searchTerm)
     {
+        // Check if user is authenticated
+        bool isAuthenticated = User.Identity != null && User.Identity.IsAuthenticated;
+
+        if (!isAuthenticated)
+        {
+            // Redirect non-authenticated users to public catalog
+            return RedirectToAction("Index", "PublicCatalog", new { hostingType, hostingCountry, searchTerm });
+        }
+
         var servicesQuery = _context.Services
             .Include(s => s.License)
             .Include(s => s.OnpremiseHosts)
@@ -84,12 +93,75 @@ public class CatalogServiceController : Controller
         return View(services);
     }
 
+    // GET: CatalogService/PublicIndex - Public catalog for non-authenticated users
+    public async Task<IActionResult> PublicIndex(string? hostingType, string? hostingCountry, string? searchTerm)
+    {
+        var servicesQuery = _context.Services
+            .Include(s => s.License)
+            .Where(s => s.IsPublic == true)  // Only show public services
+            .AsQueryable();
+
+        // Apply hosting type filter
+        if (!string.IsNullOrEmpty(hostingType) && Enum.TryParse<CatalogHostingType>(hostingType, out var hostingTypeEnum))
+        {
+            servicesQuery = servicesQuery.Where(s => s.HostingType == hostingTypeEnum);
+        }
+
+        // Apply hosting country filter
+        if (!string.IsNullOrEmpty(hostingCountry))
+        {
+            servicesQuery = servicesQuery.Where(s => s.HostingCountry.Contains(hostingCountry));
+        }
+
+        // Apply search term filter
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            servicesQuery = servicesQuery.Where(s => 
+                s.Name.Contains(searchTerm) ||
+                s.VendorName.Contains(searchTerm) ||
+                s.License.Name.Contains(searchTerm) ||
+                s.HostingCountry.Contains(searchTerm));
+        }
+
+        var services = await servicesQuery.OrderBy(s => s.Name).ToListAsync();
+
+        // Set up ViewBag for filters (same as authenticated version)
+        ViewBag.HostingTypes = Enum.GetValues<CatalogHostingType>()
+            .Select(ht => new { Value = ht.ToString(), Text = ht.ToString() })
+            .ToList();
+
+        ViewBag.HostingCountries = await _context.Services
+            .Where(s => s.IsPublic == true && !string.IsNullOrEmpty(s.HostingCountry))
+            .Select(s => s.HostingCountry)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToListAsync();
+
+        ViewBag.CurrentFilters = new
+        {
+            HostingType = hostingType,
+            HostingCountry = hostingCountry,
+            SearchTerm = searchTerm
+        };
+
+        return View(services);
+    }
+
     // GET: CatalogService/Details/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
         {
             return NotFound();
+        }
+
+        // Check if user is authenticated
+        bool isAuthenticated = User.Identity != null && User.Identity.IsAuthenticated;
+
+        if (!isAuthenticated)
+        {
+            // Redirect non-authenticated users to public details
+            return RedirectToAction("Details", "PublicCatalog", new { id });
         }
 
         var catalogService = await _context.Services
@@ -100,6 +172,8 @@ public class CatalogServiceController : Controller
             .Include(s => s.Lifecycle)
                 .ThenInclude(l => l.Stages)
             .Include(s => s.Subscription)
+            .Include(s => s.PaymentMethod)
+                .ThenInclude(p => p.CostCenter)
             .Include(s => s.GdprRegister)
                 .ThenInclude(l => l.Controller)
             .Include(s => s.GdprRegister)
@@ -121,6 +195,32 @@ public class CatalogServiceController : Controller
         return View(catalogService);
     }
 
+    // GET: CatalogService/PublicDetails/5 - Public service details for non-authenticated users
+    public async Task<IActionResult> PublicDetails(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var catalogService = await _context.Services
+            .Include(s => s.License)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (catalogService == null)
+        {
+            return NotFound();
+        }
+
+        // Check if the service is public
+        if (!catalogService.IsPublic)
+        {
+            return NotFound(); // Don't reveal non-public services to unauthenticated users
+        }
+
+        return View(catalogService);
+    }
+
     // GET: CatalogService/Create
     public IActionResult Create()
     {
@@ -136,7 +236,7 @@ public class CatalogServiceController : Controller
     // POST: CatalogService/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Name,IsPropriety,VendorName,VendorWebsiteUrl,VendorCountry,VendorCity,LicenseId,HostingType,HostingCountry,SaasRegionReference,SubscriptionId,GdprRegisterId,BillingInformationId,PaymentMethodId")] CatalogService catalogService, ServiceLifecycleStageType initialStage = ServiceLifecycleStageType.ProofOfConcept)
+    public async Task<IActionResult> Create([Bind("Id,Name,IsPropriety,IsPublic,Description,VendorName,VendorWebsiteUrl,VendorCountry,VendorCity,LicenseId,HostingType,HostingCountry,SaasRegionReference,SubscriptionId,GdprRegisterId,BillingInformationId,PaymentMethodId")] CatalogService catalogService, ServiceLifecycleStageType initialStage = ServiceLifecycleStageType.ProofOfConcept)
     {
         ModelState.Remove("License");
         ModelState.Remove("Lifecycle");
@@ -202,7 +302,7 @@ public class CatalogServiceController : Controller
     // POST: CatalogService/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IsPropriety,VendorName,VendorWebsiteUrl,VendorCountry,VendorCity,LicenseId,HostingType,HostingCountry,SaasRegionReference,LifecycleId,SubscriptionId,GdprRegisterId,BillingInformationId,PaymentMethodId")] CatalogService catalogService)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IsPropriety,IsPublic,Description,VendorName,VendorWebsiteUrl,VendorCountry,VendorCity,LicenseId,HostingType,HostingCountry,SaasRegionReference,LifecycleId,SubscriptionId,GdprRegisterId,BillingInformationId,PaymentMethodId")] CatalogService catalogService)
     {
         if (id != catalogService.Id)
         {
@@ -213,29 +313,47 @@ public class CatalogServiceController : Controller
 
         if (ModelState.IsValid)
         {
-            try
+            // Validate that the LifecycleId exists
+            var lifecycleExists = await _context.ServiceLifecycles.AnyAsync(l => l.Id == catalogService.LifecycleId);
+            if (!lifecycleExists)
             {
-                _context.Update(catalogService);
-                await _context.SaveChangesAsync();
+                ModelState.AddModelError("LifecycleId", "The selected lifecycle does not exist.");
             }
-            catch (DbUpdateConcurrencyException)
+            
+            // Validate that the LicenseId exists
+            var licenseExists = await _context.Licenses.AnyAsync(l => l.Id == catalogService.LicenseId);
+            if (!licenseExists)
             {
-                if (!CatalogServiceExists(catalogService.Id))
+                ModelState.AddModelError("LicenseId", "The selected license does not exist.");
+            }
+            
+            if (ModelState.IsValid)
+            {
+                try
                 {
-                    return NotFound();
+                    _context.Update(catalogService);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    throw;
+                    if (!CatalogServiceExists(catalogService.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
-            return RedirectToAction(nameof(Index));
         }
         
         ViewData["LicenseId"] = new SelectList(_context.Licenses, "Id", "Name", catalogService.LicenseId);
         ViewData["LifecycleId"] = new SelectList(_context.ServiceLifecycles, "Id", "CurrentStage", catalogService.LifecycleId);
         ViewData["SubscriptionId"] = new SelectList(_context.Subscriptions, "Id", "Name", catalogService.SubscriptionId);
         ViewData["GdprRegisterId"] = new SelectList(_context.GdprRegisters, "Id", "Id", catalogService.GdprRegisterId);
+        ViewData["PaymentMethodId"] = new SelectList(_context.PaymentMethods, "Id", "Name", catalogService.PaymentMethodId);
         
         return View(catalogService);
     }

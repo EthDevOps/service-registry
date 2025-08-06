@@ -40,10 +40,10 @@
                                 <dt class="col-sm-3">Service ID:</dt>
                                 <dd class="col-sm-9"><code>@Model.Id</code></dd>
                                 
-                                @if (Model.Vendor != null)
+                                @if (!string.IsNullOrEmpty(Model.VendorName))
                                 {
                                     <dt class="col-sm-3">Vendor:</dt>
-                                    <dd class="col-sm-9">@Model.Vendor.Name</dd>
+                                    <dd class="col-sm-9">@Model.VendorName</dd>
                                 }
                                 
                                 @if (Model.License != null)

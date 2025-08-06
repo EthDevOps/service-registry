@@ -6,5 +6,8 @@ namespace QuokkaServiceRegistry.Services
     {
         bool IsUserAuthorized(string email);
         IEnumerable<string> GetAuthorizedUsers();
+        void AddUser(string email);
+        void RemoveUser(string email);
+        string GetConfigurationString();
     }
 }

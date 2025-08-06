@@ -21,6 +21,7 @@
 
             <form asp-action="Edit" method="post">
                 <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="LifecycleId" />
                 
                 <div class="row">
                     <div class="col-lg-8">
@@ -48,8 +49,36 @@
                                                     Is Proprietary Software
                                                 </label>
                                             </div>
+                                            <div class="form-check mt-2">
+                                                <input asp-for="IsPublic" class="form-check-input" />
+                                                <label asp-for="IsPublic" class="form-check-label">
+                                                    Make Publicly Visible
+                                                </label>
+                                            </div>
                                             <span asp-validation-for="IsPropriety" class="text-danger"></span>
+                                            <span asp-validation-for="IsPublic" class="text-danger"></span>
+                                            <div class="form-text">Check to make this service visible to non-authenticated users</div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Service Description -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-file-alt"></i> Service Description
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Description" class="form-label">Description (Optional)</label>
+                                    <textarea asp-for="Description" class="form-control" rows="5" 
+                                              placeholder="Enter a detailed description of what this service does (optional)."></textarea>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                    <div class="form-text">
+                                        Provide a detailed description to help users understand what this service does and its key features.
                                     </div>
                                 </div>
                             </div>
@@ -64,11 +93,30 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group mb-3">
-                                    <label asp-for="VendorId" class="form-label">Select Vendor</label>
-                                    <select asp-for="VendorId" class="form-select" asp-items="ViewBag.VendorId">
-                                        <option value="">-- Select Vendor --</option>
-                                    </select>
-                                    <span asp-validation-for="VendorId" class="text-danger"></span>
+                                    <label asp-for="VendorName" class="form-label">Vendor Name</label>
+                                    <input asp-for="VendorName" class="form-control" />
+                                    <span asp-validation-for="VendorName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="VendorWebsiteUrl" class="form-label">Vendor Website URL</label>
+                                    <input asp-for="VendorWebsiteUrl" class="form-control" type="url" />
+                                    <span asp-validation-for="VendorWebsiteUrl" class="text-danger"></span>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="VendorCountry" class="form-label">Vendor Country</label>
+                                            <input asp-for="VendorCountry" class="form-control" />
+                                            <span asp-validation-for="VendorCountry" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="VendorCity" class="form-label">Vendor City</label>
+                                            <input asp-for="VendorCity" class="form-control" />
+                                            <span asp-validation-for="VendorCity" class="text-danger"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -90,6 +138,7 @@
                                 </div>
                             </div>
                         </div>
+
 
                         <!-- Hosting Information -->
                         <div class="card mb-4">
@@ -139,11 +188,11 @@
                                 <div class="mb-3">
                                     <strong>Service ID:</strong> @Model.Id
                                 </div>
-                                @if (Model.Vendor != null)
+                                @if (!string.IsNullOrEmpty(Model.VendorName))
                                 {
                                     <div class="mb-3">
                                         <strong>Current Vendor:</strong><br>
-                                        <span class="badge bg-info">@Model.Vendor.Name</span>
+                                        <span class="badge bg-info">@Model.VendorName</span>
                                     </div>
                                 }
                                 @if (Model.License != null)
@@ -180,6 +229,15 @@
                                         <option value="">-- No GDPR Register --</option>
                                     </select>
                                     <span asp-validation-for="GdprRegisterId" class="text-danger"></span>
+                                </div>
+
+                                <!-- Payment Method -->
+                                <div class="form-group mb-3">
+                                    <label asp-for="PaymentMethodId" class="form-label">Payment Method (Optional)</label>
+                                    <select asp-for="PaymentMethodId" class="form-select" asp-items="ViewBag.PaymentMethodId">
+                                        <option value="">-- No Payment Method --</option>
+                                    </select>
+                                    <span asp-validation-for="PaymentMethodId" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using QuokkaServiceRegistry.Data;
@@ -11,9 +12,11 @@ using QuokkaServiceRegistry.Data;
 namespace QuokkaServiceRegistry.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250804073434_IntegrateVendorIntoService")]
+    partial class IntegrateVendorIntoService
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -347,9 +350,6 @@ namespace QuokkaServiceRegistry.Migrations
                     b.Property<int?>("BillingInformationId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
                     b.Property<int?>("GdprRegisterId")
                         .HasColumnType("integer");
 
@@ -362,9 +362,6 @@ namespace QuokkaServiceRegistry.Migrations
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsPropriety")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
 
                     b.Property<int>("LicenseId")
@@ -467,16 +464,9 @@ namespace QuokkaServiceRegistry.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("CostCenterId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<string>("DataOwner")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -495,8 +485,6 @@ namespace QuokkaServiceRegistry.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CostCenterId");
 
                     b.ToTable("GdprControllers");
                 });
@@ -1059,15 +1047,6 @@ namespace QuokkaServiceRegistry.Migrations
                     b.Navigation("PaymentMethod");
 
                     b.Navigation("Subscription");
-                });
-
-            modelBuilder.Entity("QuokkaServiceRegistry.Models.GdprController", b =>
-                {
-                    b.HasOne("QuokkaServiceRegistry.Models.CostCenter", "CostCenter")
-                        .WithMany()
-                        .HasForeignKey("CostCenterId");
-
-                    b.Navigation("CostCenter");
                 });
 
             modelBuilder.Entity("QuokkaServiceRegistry.Models.GdprDataRegister", b =>
